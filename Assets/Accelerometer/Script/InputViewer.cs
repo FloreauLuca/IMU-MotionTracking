@@ -96,7 +96,11 @@ public class InputViewer : MonoBehaviour
 
         processAccFrame.computeAccelerationGrav = (Input.acceleration - Input.gyro.gravity);
         processAccFrame.computeAccelerationInit = (Input.acceleration - acceleration);
-        velocityprocessInit += processAccFrame.computeAccelerationInit;
+        if (processAccFrame.computeAccelerationInit.x > 0.004f ||processAccFrame.computeAccelerationInit.y > 0.004f || processAccFrame.computeAccelerationInit.z > 0.004f )
+        {
+            velocityprocessInit += processAccFrame.computeAccelerationInit;
+        }
+
         processAccFrame.velocityprocessInit = velocityprocessInit;
             
         Debug.Log("[InputViewer] Input.acceleration : " + Input.acceleration.ToString("#.000"));

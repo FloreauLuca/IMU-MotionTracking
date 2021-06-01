@@ -63,7 +63,11 @@ public class NaiveMovingTest : MonoBehaviour
         acceleration = Input.acceleration;
         acceleration -= initialAcceleration;
         //acceleration = RoundVector3(acceleration, 5);
-        speed += acceleration;
+        if (acceleration.x > 0.004f || acceleration.y > 0.004f || acceleration.z > 0.004f)
+        {
+            speed += acceleration;
+        }
+
         transform.position += speed * speedModifier;
 
         rawRotation = Input.gyro.attitude.eulerAngles;

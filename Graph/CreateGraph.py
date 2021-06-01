@@ -1,6 +1,7 @@
 # sphinx_gallery_thumbnail_number = 3
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import json
 import sys
 
@@ -32,14 +33,18 @@ def parse(filename, graphName):
     return vector
 
 
-def plot(vector):
+def plot(vector, graph_name):
+    fig, ax = plt.subplots()
+    ax.yaxis.set_major_locator(MultipleLocator(0.5))
     for graphName in vector.keys():
         x = list(map(lambda xy: xy[0], vector[graphName]))
         y = list(map(lambda xy: xy[1], vector[graphName]))
 
-        plt.plot(x, y, label=graphName)
+        ax.plot(x, y, label=graphName)
     plt.xlabel("Time ")
     plt.ylabel("Value")
+    plt.title(graph_name)
+    plt.grid(True)
     plt.legend()
     plt.show()
 
@@ -54,8 +59,7 @@ def main():
         if graph_name == filename:
             continue
         graph = parse(filename, graph_name)
-        plt.title(graph_name)
-        plot(graph)
+        plot(graph, graph_name)
 
 
 if __name__ == '__main__':
