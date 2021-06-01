@@ -112,6 +112,11 @@
                         var obj = data.find(data_ => data_.name == key + axis);
                         obj.visible = checked;
                     }
+                    if (data.find(data_ => data_.name == key) != undefined) {
+                        var obj = data.find(data_ => data_.name == key); 
+                        obj.visible = checked;
+
+                    }
                     return;
                 }                     
                 if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) {

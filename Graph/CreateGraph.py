@@ -35,7 +35,7 @@ def parse(filename, graphName):
 
 def plot(vector, graph_name):
     fig, ax = plt.subplots()
-    ax.yaxis.set_major_locator(MultipleLocator(0.5))
+    #ax.yaxis.set_major_locator(MultipleLocator(0.5))
     for graphName in vector.keys():
         x = list(map(lambda xy: xy[0], vector[graphName]))
         y = list(map(lambda xy: xy[1], vector[graphName]))
