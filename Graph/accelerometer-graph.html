@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <script>
 
-        var chart = null;
+        var chart = null;      
         var data = [];
+        var graphNames = [];
         const isObject = (obj) => {
             return Object.prototype.toString.call(obj) === '[object Object]';
         };
@@ -23,13 +24,11 @@
                     theme: "light2",
                     exportEnabled: true,
                     animationEnabled: true,
-                    zoomEnabled: true,
+                    zoomEnabled: true,      
+                    zoomType: "xy",
                     title: {
-                        text: "Performance Demo with 50,000 Data Points"
-                    },
-                    subtitles: [{
-                        text: "Try Zooming and Panning"
-                    }],
+                        text: "Accelerometer data"
+                    }, 
                     data: data,
                     axisY: {
                         includeZero: false
@@ -37,14 +36,16 @@
                 });
         }
         function drawGraph() {
-            resetChart();
-            var x = document.getElementById("data").value;
+            console.log(data);
+            var text = document.getElementById("data").value;
             //console.log(x);                                                
-            var json = JSON.parse(x);
+            var json = JSON.parse(text);
             //Object.keys(json).forEach(key => {
             //    console.log(key, json[key]);
             //});
+            generatedCheckBox(json);
             writeToDataPoint(json);
+
         }
         function createCheckbox(name) {
             var myDiv = document.getElementById("checkboxContainer");
@@ -76,77 +77,112 @@
             myDiv.appendChild(checkbox);
             myDiv.appendChild(label);
             return checkbox;
-        }
-
-        function writeToDataPoint(json) {
+        } 
+        function generatedCheckBox(json) {
             Object.keys(json.frames[0]).forEach(key => {
                 var checkbox = document.getElementById(key);
                 if (!checkbox) {
                     checkbox = createCheckbox(key);
-                }                              
-                if (checkbox.checked) {  
-                    if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) { 
-                        var dataPointsX = [];
-                        var dataPointsY = [];
-                        var dataPointsZ = [];
-                        for (var i = 0; i < json.frames.length; i++) {
-                            dataPointsX.push({
-                                x: json.frames[i].dt,
-                                y: json.frames[i][key].x
-                            });
-                            dataPointsY.push({
-                                x: json.frames[i].dt,
-                                y: json.frames[i][key].y
-                            });
-                            dataPointsZ.push({
-                                x: json.frames[i].dt,
-                                y: json.frames[i][key].z
-                            });
-                        } 
-                        data.push({
-                            type: "line",
-                            color:"red",
-                            name: key + "X",
-                            showInLegend: true,
-                            dataPoints: dataPointsX
-                        });
-                        data.push({
-                            type: "line",
-                            color: "green",
-                            name: key + "Y",
-                            showInLegend: true,
-                            dataPoints: dataPointsY
-                        });
-                        data.push({
-                            type: "line",
-                            color: "blue",
-                            name: key + "Z",
-                            showInLegend: true,
-                            dataPoints: dataPointsZ
-                        });
-                        console.log(key);
-
-                    } else {
-                        var dataPoints = [];
-                        for (var i = 0; i < json.frames.length; i++) {  
-                            dataPoints.push({
-                                x: json.frames[i].dt,
-                                y: json.frames[i][key]
-                            });  
-                        }
-                        data.push({
-                            type: "line",
-                            name: key,
-                            showInLegend: true,
-                            dataPoints: dataPoints
-                        });
-                        console.log(key);
-                    }
+                    graphNames.push(key);
+                }                
+            });
+        }
+        function writeToDataPoint(json) {    
+            graphNames.forEach(key => {      
+                console.log(key);
+                var checkbox = document.getElementById(key);
+                if (!checkbox) {
+                    checkbox = createCheckbox(key);
                 }
-            });  
+                var checked = checkbox.checked;
+                var dataPoints;
+                if (json.frames[0][key] == undefined) {
+                    var axis = "X";
+                    if (data.find(data_ => data_.name == key + axis) != undefined) {
+                        var obj = data.find(data_ => data_.name == key + axis);   
+                        obj.visible = checked;
+                    }
+                    axis = "Y";
+                    if (data.find(data_ => data_.name == key + axis) != undefined) {
+                        var obj = data.find(data_ => data_.name == key + axis);
+                        obj.visible = checked;
+                    }
+                    axis = "Z";
+                    if (data.find(data_ => data_.name == key + axis) != undefined) {
+                        var obj = data.find(data_ => data_.name == key + axis);
+                        obj.visible = checked;
+                    }
+                    return;
+                }                     
+                if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) {
+                    dataPoints = {};
+                    dataPoints["X"] = [];
+                    dataPoints["Y"] = [];
+                    dataPoints["Z"] = [];
+                    for (var i = 0; i < json.frames.length; i++) {
+                        dataPoints["X"] .push({
+                            x: json.frames[i].dt,
+                            y: json.frames[i][key].x
+                        });
+                        dataPoints["Y"].push({
+                            x: json.frames[i].dt,
+                            y: json.frames[i][key].y
+                        });
+                        dataPoints["Z"].push({
+                            x: json.frames[i].dt,
+                            y: json.frames[i][key].z
+                        });
+                    }    
+                    function addAxisData(axis, colorAxis) {
+                        console.log(key + axis);
+                        if (data.find(data_ => data_.name == key + axis) != undefined) {
+                            var obj = data.find(data_ => data_.name == key + axis);
+                            obj.dataPoints = dataPoints[axis];    
+                            obj.visible = checked;
+                        } else {                                    
+                            data.push({
+                                type: "line",
+                                showInLegend: true,
+                                visible: checked,
+                                name: key + axis,
+                                color: colorAxis,
+                                dataPoints: dataPoints[axis]
+                            });                
+                        }   
+                    }
+
+                    console.log(data);
+                    addAxisData("X", "red");
+                    addAxisData("Y", "green");
+                    addAxisData("Z", "blue");  
+
+                } else {
+                    dataPoints = [];
+                    for (var i = 0; i < json.frames.length; i++) {
+                        dataPoints.push({
+                            x: json.frames[i].dt,
+                            y: json.frames[i][key]
+                        });
+                    }
+                    if (data.find(data_ => data_.name == key) != undefined) {
+                        var obj = data.find(data_ => data_.name == key);
+                        obj.dataPoints = dataPoints;
+                        obj.visible = checked;
+
+                    } else {                                         
+                        data.push({
+                            type: "line",
+                            showInLegend: true,
+                            visible: checked,
+                            name: key,     
+                            dataPoints: dataPoints
+                        });                   
+                    }                 
+                }
+            });                                              
             console.log(data);
             chart.render();
-        }
+        }     
     </script>
 </head>
 <body>
