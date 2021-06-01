@@ -6,67 +6,156 @@
 
         var chart = null;
         var data = [];
+        const isObject = (obj) => {
+            return Object.prototype.toString.call(obj) === '[object Object]';
+        };
 
         window.onload = function() {
-
+            resetChart();
+                                                           
+            //$.getJSON("../Assets/Graph/new-json-graph-test.graph", callback);           
+        };  
+        function resetChart()
+        {
+            data = []; 
             chart = new CanvasJS.Chart("chartContainer",
-                {         
+                {
+                    theme: "light2",
+                    exportEnabled: true,
                     animationEnabled: true,
                     zoomEnabled: true,
-                    title:{
+                    title: {
                         text: "Performance Demo with 50,000 Data Points"
-                    }, 
-                    subtitles:[{
+                    },
+                    subtitles: [{
                         text: "Try Zooming and Panning"
                     }],
                     data: data,
-                    axisY:{
+                    axisY: {
                         includeZero: false
                     }
                 });
-                                                           
-            //$.getJSON("../Assets/Graph/new-json-graph-test.graph", callback);           
-        };                       
-        function drawGraph() {     
+        }
+        function drawGraph() {
+            resetChart();
             var x = document.getElementById("data").value;
-            console.log(x);                                                
+            //console.log(x);                                                
             var json = JSON.parse(x);
-            //console.log(data);
-            Object.keys(json).forEach(key => {
-                console.log(key, json[key]);
-            });
+            //Object.keys(json).forEach(key => {
+            //    console.log(key, json[key]);
+            //});
             writeToDataPoint(json);
         }
+        function createCheckbox(name) {
+            var myDiv = document.getElementById("checkboxContainer");
+
+            // creating checkbox element
+            var checkbox = document.createElement('input');
+
+            // Assigning the attributes
+            // to created checkbox
+            checkbox.type = "checkbox";
+            checkbox.name = name;
+            checkbox.value = "value";
+            checkbox.checked = false;
+            checkbox.id = name;
+
+            // creating label for checkbox
+            var label = document.createElement('label');
+
+            // assigning attributes for
+            // the created label tag
+            label.htmlFor = name;
+
+            // appending the created text to
+            // the created label tag
+            label.appendChild(document.createTextNode(name));
+
+            // appending the checkbox
+            // and label to div
+            myDiv.appendChild(checkbox);
+            myDiv.appendChild(label);
+            return checkbox;
+        }
+
         function writeToDataPoint(json) {
-            Object.keys(json.frames[0]).forEach(key => { 
-                var dataPoints = [];  
-                for (var i = 0; i < json.frames.length; i++) { 
-                    if (json.frames[i][key].x != undefined) {
-                        dataPoints.push({
-                            x: json.frames[i].dt,
-                            y: json.frames[i][key].x
+            Object.keys(json.frames[0]).forEach(key => {
+                var checkbox = document.getElementById(key);
+                if (!checkbox) {
+                    checkbox = createCheckbox(key);
+                }                              
+                if (checkbox.checked) {  
+                    if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) { 
+                        var dataPointsX = [];
+                        var dataPointsY = [];
+                        var dataPointsZ = [];
+                        for (var i = 0; i < json.frames.length; i++) {
+                            dataPointsX.push({
+                                x: json.frames[i].dt,
+                                y: json.frames[i][key].x
+                            });
+                            dataPointsY.push({
+                                x: json.frames[i].dt,
+                                y: json.frames[i][key].y
+                            });
+                            dataPointsZ.push({
+                                x: json.frames[i].dt,
+                                y: json.frames[i][key].z
+                            });
+                        } 
+                        data.push({
+                            type: "line",
+                            color:"red",
+                            name: key + "X",
+                            showInLegend: true,
+                            dataPoints: dataPointsX
                         });
+                        data.push({
+                            type: "line",
+                            color: "green",
+                            name: key + "Y",
+                            showInLegend: true,
+                            dataPoints: dataPointsY
+                        });
+                        data.push({
+                            type: "line",
+                            color: "blue",
+                            name: key + "Z",
+                            showInLegend: true,
+                            dataPoints: dataPointsZ
+                        });
+                        console.log(key);
+
+                    } else {
+                        var dataPoints = [];
+                        for (var i = 0; i < json.frames.length; i++) {  
+                            dataPoints.push({
+                                x: json.frames[i].dt,
+                                y: json.frames[i][key]
+                            });  
+                        }
+                        data.push({
+                            type: "line",
+                            name: key,
+                            showInLegend: true,
+                            dataPoints: dataPoints
+                        });
+                        console.log(key);
                     }
                 }
-                data.push({
-                    type: "line",
-                    name: key,
-                    showInLegend: true,
-                    dataPoints: dataPoints
-                });
-            });      
-            //console.log(dataPoints);       
+            });  
+            console.log(data);
             chart.render();
         }
     </script>
 </head>
 <body>
-    <div id="chartContainer" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
-    <button type="button" onclick="drawGraph()">Try it</button>
     <br />
-    <textarea id="data" rows="30" cols="100"> </textarea>
+    <textarea id="data" rows="10" cols="100"> </textarea>
     <br />
-    <button type="button" onclick="drawGraph()">Try it</button>
+    <button type="button" onclick="drawGraph()">Update Graph</button>
+    <div id="checkboxContainer"></div>
+<div id="chartContainer" style="height: 500px; max-width: 920px; margin: 0px auto;"></div>
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script src="canvasjs.min.js"></script>
 </body>
