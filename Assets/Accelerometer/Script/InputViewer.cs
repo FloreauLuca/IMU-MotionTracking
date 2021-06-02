@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using UnityEditor;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 [Serializable]
 public class RawAccFrame : Frame
@@ -45,7 +47,7 @@ public class ProcessGraph
 public class KalmanGraph
 {
     public List<KalmanFrame> frames = new List<KalmanFrame>();
-}
+} 
 
 [Serializable]
 public class Phase
@@ -53,7 +55,8 @@ public class Phase
     public float startValue;
     public float endValue;
     public int phase;
-
+    public Vector3 sumAcc;
+    public Vector3 averageAcc;
 }
 
 [Serializable]
@@ -101,28 +104,12 @@ public class InputViewer : MonoBehaviour
         {
             acceleration = Input.acceleration;
         }
-        RawAccFrame rawAccFrame = new RawAccFrame();
-        ProcessAccFrame processAccFrame = new ProcessAccFrame();
-        KalmanFrame kalmanFrame = new KalmanFrame();
-        rawAccFrame.dt = Time.time;
-        processAccFrame.dt = Time.time;
-        kalmanFrame.dt = Time.time;
+        UpdateRawGraph();
+        UpdateProcessAccGraph();
+        UpdateKalmanGraph();
+        UpdateAnalysisGraph();
 
-        rawAccFrame.acceleration = Input.acceleration;
-        rawAccFrame.gravity = Input.gyro.gravity;
-        rawAccFrame.userAcceleration = Input.gyro.userAcceleration;
-        velocity += rawAccFrame.userAcceleration;
-        rawAccFrame.rawVelocity = velocity;
 
-        processAccFrame.computeAccelerationGrav = (Input.acceleration - Input.gyro.gravity);
-        processAccFrame.computeAccelerationInit = (Input.acceleration - acceleration);
-        if (processAccFrame.computeAccelerationInit.x > 0.004f ||processAccFrame.computeAccelerationInit.y > 0.004f || processAccFrame.computeAccelerationInit.z > 0.004f )
-        {
-            velocityprocessInit += processAccFrame.computeAccelerationInit;
-        }
-
-        processAccFrame.velocityprocessInit = velocityprocessInit;
-            
         Debug.Log("[InputViewer] Input.acceleration : " + Input.acceleration.ToString("#.000"));
         Debug.Log("[InputViewer] Input.accelerationEventCount : " + Input.accelerationEventCount);
         Debug.Log("[InputViewer] Input.gyro.gravity : " + Input.gyro.gravity.ToString("#.000"));
@@ -141,8 +128,44 @@ public class InputViewer : MonoBehaviour
             Debug.Log("[InputViewer] Input.gyro.rotationRate : " + Input.gyro.rotationRate.ToString("#.000"));
             Debug.Log("[InputViewer] Input.gyro.ToString() : " + Input.gyro.ToString());
         }
+        
+    }
 
+    private RawAccFrame rawAccFrame;
+    void UpdateRawGraph()
+    {
 
+        rawAccFrame = new RawAccFrame();
+        rawAccFrame.dt = Time.time;
+        rawAccFrame.acceleration = Input.acceleration;
+        rawAccFrame.gravity = Input.gyro.gravity;
+        rawAccFrame.userAcceleration = Input.gyro.userAcceleration;
+        velocity += rawAccFrame.userAcceleration;
+        rawAccFrame.rawVelocity = velocity;
+        rawGraph.frames.Add(rawAccFrame);
+    }
+
+    private ProcessAccFrame processAccFrame;
+    void UpdateProcessAccGraph()
+    {
+        processAccFrame = new ProcessAccFrame();
+        processAccFrame.dt = Time.time;
+        processAccFrame.computeAccelerationGrav = (Input.acceleration - Input.gyro.gravity);
+        processAccFrame.computeAccelerationInit = (Input.acceleration - acceleration);
+        if (processAccFrame.computeAccelerationInit.x > 0.004f || processAccFrame.computeAccelerationInit.y > 0.004f || processAccFrame.computeAccelerationInit.z > 0.004f)
+        {
+            velocityprocessInit += processAccFrame.computeAccelerationInit;
+        }
+
+        processAccFrame.velocityprocessInit = velocityprocessInit;
+        processGraph.frames.Add(processAccFrame);
+    }
+
+    private KalmanFrame kalmanFrame;
+    void UpdateKalmanGraph()
+    {
+        kalmanFrame = new KalmanFrame();
+        kalmanFrame.dt = Time.time;
         kalmanFrame.kalmanRawAcc = kalmanFilterRawAcc.Update(Input.acceleration);
         kalmanFrame.kalmanComputeAcc = kalmanFilterComputeAcc.Update(processAccFrame.computeAccelerationInit);
         kalmanFrame.kalmanComputeAcc = NaiveMovingTest.RoundVector3(kalmanFrame.kalmanComputeAcc, 2);
@@ -150,13 +173,13 @@ public class InputViewer : MonoBehaviour
         kalmanVelocity = kalmanFilterSpeed.Update(kalmanVelocity);
         kalmanFrame.kalmanSpeed = kalmanVelocity;
         kalmanFrame.kalmanProcessSpeed = kalmanFilterProcessSpeed.Update(processAccFrame.velocityprocessInit);
-        
-
-        rawGraph.frames.Add(rawAccFrame);
-        processGraph.frames.Add(processAccFrame);
         kalmanGraph.frames.Add(kalmanFrame);
 
-
+    }
+    
+    void UpdateAnalysisGraph()
+    {
+        currentPhase.sumAcc += Input.gyro.userAcceleration;
     }
 
     public void SetPhase(int phase)
@@ -168,8 +191,7 @@ public class InputViewer : MonoBehaviour
             currentPhase.phase = phase;
         } else
         {
-            currentPhase.endValue = Time.time;
-            phaseGraph.phases.Add(currentPhase);
+            EndPhase();
             currentPhase = new Phase();
             currentPhase.startValue = Time.time;
             currentPhase.phase = phase;
@@ -180,10 +202,19 @@ public class InputViewer : MonoBehaviour
     {
         if (currentPhase.startValue != 0)
         {
+            Debug.Log("[EndPhase] " +currentPhase.sumAcc);
+            currentPhase.averageAcc = currentPhase.sumAcc / (currentPhase.endValue - currentPhase.startValue);
+            Debug.Log("[EndPhase] " + currentPhase.averageAcc);
             currentPhase.endValue = Time.time;
             phaseGraph.phases.Add(currentPhase);
             currentPhase = new Phase();
+
         }
+    }
+
+    public void ResetVelocity()
+    {
+        velocity = Vector3.zero;
     }
 }
 

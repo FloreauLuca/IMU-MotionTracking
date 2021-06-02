@@ -224,7 +224,14 @@
                     endValue: json.phases[i].endValue,
                     opacity: .3,
                     color: phaseColor[i%6],
-                    label: json.phases[i].phase,
+                    label: json.phases[i].phase +
+                        "; " +
+                        "(" + json.phases[i].averageAcc.x + "; " + 
+                        json.phases[i].averageAcc.y + "; " +
+                        json.phases[i].averageAcc.z + ")" +
+                        "(" + json.phases[i].sumAcc.x + "; " +
+                        json.phases[i].sumAcc.y + "; " +
+                        json.phases[i].sumAcc.z + ")",
                     labelFontColor: "black",
                     labelFontSize: "18",
                     labelFontWeight: "bold"
