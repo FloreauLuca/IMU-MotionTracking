@@ -7,6 +7,16 @@
         var chart = null;      
         var data = [];
         var graphNames = [];
+        var stripLines = [];
+        var phaseColor =
+        [
+            "#FF0018",
+            "#FFA52C",
+            "#FFFF41",
+            "#008018",
+            "#0000F9",
+            "#86007D",
+        ];
         const isObject = (obj) => {
             return Object.prototype.toString.call(obj) === '[object Object]';
         };
@@ -32,6 +42,9 @@
                     data: data,
                     axisY: {
                         includeZero: false
+                    },
+                    axisX: {
+                        stripLines: stripLines
                     }
                 });
         }
@@ -58,7 +71,7 @@
             checkbox.type = "checkbox";
             checkbox.name = name;
             checkbox.value = "value";
-            checkbox.checked = false;
+            checkbox.checked = true;
             checkbox.id = name;
 
             // creating label for checkbox
@@ -87,6 +100,39 @@
                 }                
             });
         }
+
+        function updateVisibility() {
+            graphNames.forEach(key => {
+                console.log(key);
+                var checkbox = document.getElementById(key);
+                if (!checkbox) {
+                    checkbox = createCheckbox(key);
+                }
+                var checked = checkbox.checked;   
+                var axis = "X";
+                if (data.find(data_ => data_.name == key + axis) != undefined) {
+                    var obj = data.find(data_ => data_.name == key + axis);
+                    obj.visible = checked;
+                }
+                axis = "Y";
+                if (data.find(data_ => data_.name == key + axis) != undefined) {
+                    var obj = data.find(data_ => data_.name == key + axis);
+                    obj.visible = checked;
+                }
+                axis = "Z";
+                if (data.find(data_ => data_.name == key + axis) != undefined) {
+                    var obj = data.find(data_ => data_.name == key + axis);
+                    obj.visible = checked;
+                }
+                if (data.find(data_ => data_.name == key) != undefined) {
+                    var obj = data.find(data_ => data_.name == key);
+                    obj.visible = checked;
+
+                }      
+            });
+            chart.render();
+        }
+
         function writeToDataPoint(json) {    
             graphNames.forEach(key => {      
                 console.log(key);
@@ -95,30 +141,7 @@
                     checkbox = createCheckbox(key);
                 }
                 var checked = checkbox.checked;
-                var dataPoints;
-                if (json.frames[0][key] == undefined) {
-                    var axis = "X";
-                    if (data.find(data_ => data_.name == key + axis) != undefined) {
-                        var obj = data.find(data_ => data_.name == key + axis);   
-                        obj.visible = checked;
-                    }
-                    axis = "Y";
-                    if (data.find(data_ => data_.name == key + axis) != undefined) {
-                        var obj = data.find(data_ => data_.name == key + axis);
-                        obj.visible = checked;
-                    }
-                    axis = "Z";
-                    if (data.find(data_ => data_.name == key + axis) != undefined) {
-                        var obj = data.find(data_ => data_.name == key + axis);
-                        obj.visible = checked;
-                    }
-                    if (data.find(data_ => data_.name == key) != undefined) {
-                        var obj = data.find(data_ => data_.name == key); 
-                        obj.visible = checked;
-
-                    }
-                    return;
-                }                     
+                var dataPoints;                   
                 if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) {
                     dataPoints = {};
                     dataPoints["X"] = [];
@@ -186,8 +209,34 @@
                 }
             });                                              
             console.log(data);
+            updateVisibility();
             chart.render();
         }     
+
+        function drawPhase() {
+            stripLines = [];
+            var text = document.getElementById("data").value;
+            var json = JSON.parse(text);
+            for (var i = 0; i < json.phases.length; i++) {
+                var phase =
+                {
+                    startValue: json.phases[i].startValue,
+                    endValue: json.phases[i].endValue,
+                    opacity: .3,
+                    color: phaseColor[i%6],
+                    label: json.phases[i].phase,
+                    labelFontColor: "black",
+                    labelFontSize: "18",
+                    labelFontWeight: "bold"
+                };
+                console.log(stripLines.length);
+                stripLines.push(phase);
+            }
+            chart.options.axisX.stripLines = stripLines;
+            chart.render();
+        }
+
+
     </script>
 </head>
 <body>
@@ -195,6 +244,8 @@
     <textarea id="data" rows="10" cols="100"> </textarea>
     <br />
     <button type="button" onclick="drawGraph()">Update Graph</button>
+    <button type="button" onclick="drawPhase()">Update Phases</button>
+    <button type="button" onclick="updateVisibility()">Update Visibility</button>
     <div id="checkboxContainer"></div>
 <div id="chartContainer" style="height: 500px; max-width: 920px; margin: 0px auto;"></div>
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>

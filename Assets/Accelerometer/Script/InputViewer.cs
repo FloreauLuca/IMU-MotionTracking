@@ -47,11 +47,28 @@ public class KalmanGraph
     public List<KalmanFrame> frames = new List<KalmanFrame>();
 }
 
+[Serializable]
+public class Phase
+{
+    public float startValue;
+    public float endValue;
+    public int phase;
+
+}
+
+[Serializable]
+public class PhaseGraph
+{
+    public List<Phase> phases = new List<Phase>();
+}
+
+
 public class InputViewer : MonoBehaviour
 {
     public RawGraph rawGraph;
     public ProcessGraph processGraph;
     public KalmanGraph kalmanGraph;
+    public PhaseGraph phaseGraph = new PhaseGraph();
 
 
     private Vector3 velocity;
@@ -66,6 +83,9 @@ public class InputViewer : MonoBehaviour
     private KalmanFilterVector3 kalmanFilterProcessSpeed = new KalmanFilterVector3();
 
     [SerializeField] private bool gyro = false;
+
+    [SerializeField] private Phase currentPhase;
+
     
     // Start is called before the first frame update
     void Start()
@@ -136,8 +156,35 @@ public class InputViewer : MonoBehaviour
         processGraph.frames.Add(processAccFrame);
         kalmanGraph.frames.Add(kalmanFrame);
 
+
     }
 
+    public void SetPhase(int phase)
+    {
+        if (currentPhase.startValue == 0)
+        {
+            currentPhase = new Phase();
+            currentPhase.startValue = Time.time;
+            currentPhase.phase = phase;
+        } else
+        {
+            currentPhase.endValue = Time.time;
+            phaseGraph.phases.Add(currentPhase);
+            currentPhase = new Phase();
+            currentPhase.startValue = Time.time;
+            currentPhase.phase = phase;
+        }
+    }
+
+    public void EndPhase()
+    {
+        if (currentPhase.startValue != 0)
+        {
+            currentPhase.endValue = Time.time;
+            phaseGraph.phases.Add(currentPhase);
+            currentPhase = new Phase();
+        }
+    }
 }
 
 [CustomEditor(typeof(InputViewer))] //1
@@ -149,5 +196,6 @@ public class InputGraphButton : GraphButton
         CreateJson(inputViewer.rawGraph, "Assets/Graph/rawGraph.graph");
         CreateJson(inputViewer.processGraph, "Assets/Graph/processGraph.graph");
         CreateJson(inputViewer.kalmanGraph, "Assets/Graph/kalmanGraph.graph");
+        CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph.graph");
     }
 }
