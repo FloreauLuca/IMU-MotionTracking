@@ -2465,7 +2465,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 963194229}
         m_TargetAssemblyTypeName: InputViewer, Assembly-CSharp
-        m_MethodName: EndPhase
+        m_MethodName: ResetVelocity
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
