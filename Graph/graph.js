@@ -3,23 +3,24 @@ var data = [];
 var graphNames = [];
 var stripLines = [];
 var phaseColor =
-    [
-        "#FF0018",
-        "#FFA52C",
-        "#FFFF41",
-        "#008018",
-        "#0000F9",
-        "#86007D",
-    ];
+[
+    "#FF0018",
+    "#FFA52C",
+    "#FFFF41",
+    "#008018",
+    "#0000F9",
+    "#86007D",
+];
 const isObject = (obj) => {
-    return Object.prototype.toString.call(obj) === '[object Object]';
+    return Object.prototype.toString.call(obj) === "[object Object]";
 };
 
-window.onload = function () {
+window.onload = function() {
     initChart();
 
     //$.getJSON("../Assets/Graph/new-json-graph-test.graph", callback);
 };
+
 function initChart() {
     data = [];
     chart = new CanvasJS.Chart("chartContainer",
@@ -32,6 +33,10 @@ function initChart() {
             title: {
                 text: "Accelerometer data"
             },
+            toolTip: {
+                content: "{name} <br/>{x}: <strong>{y}</strong>",
+                animationEnabled: true 
+            },
             data: data,
             axisY: {
                 includeZero: false
@@ -41,6 +46,7 @@ function initChart() {
             }
         });
 }
+
 function drawGraph() {
     console.log(data);
     var text = document.getElementById("data").value;
@@ -49,23 +55,24 @@ function drawGraph() {
     writeToDataPoint(json);
 
 }
+
 function createCheckbox(name, container) {
     var myDiv = document.getElementById(container);
-    
-    var checkbox = document.createElement('input');
-    
+
+    var checkbox = document.createElement("input");
+
     checkbox.type = "checkbox";
     checkbox.name = name;
     checkbox.value = "value";
     checkbox.checked = true;
     checkbox.id = name;
-    
-    var label = document.createElement('label');
-    
+
+    var label = document.createElement("label");
+
     label.htmlFor = name;
 
     label.appendChild(document.createTextNode(name));
-    
+
     myDiv.appendChild(checkbox);
     myDiv.appendChild(label);
     return checkbox;
@@ -118,6 +125,7 @@ function updateVisibility() {
         }
     });
     chart.render();
+    console.log(data);
 }
 
 function writeToDataPoint(json) {
@@ -143,6 +151,7 @@ function writeToDataPoint(json) {
                     y: json.frames[i][key].z
                 });
             }
+
             function addAxisData(axis, colorAxis) {
                 console.log(key + axis);
                 if (data.find(data_ => data_.name == key + axis) != undefined) {
@@ -163,6 +172,53 @@ function writeToDataPoint(json) {
             addAxisData("X", "red");
             addAxisData("Y", "green");
             addAxisData("Z", "blue");
+
+        } else if (Array.isArray(json.frames[0][key])) {
+            dataPoints = {};
+            dataPoints["X"] = [];
+            dataPoints["Y"] = [];
+            dataPoints["Z"] = [];
+            for (var i = 0; i < json.frames.length; i++) {
+                dataPoints["X"].push({
+                    label: json.frames[i].dt,
+                    y: []
+                });
+                dataPoints["Y"].push({
+                    label: json.frames[i].dt,
+                    y: []
+                });
+                dataPoints["Z"].push({
+                    label: json.frames[i].dt,
+                    y: []
+                });
+                for (var j = 0; j < json.frames[i][key].length; j++) {
+                    dataPoints["X"][i].y.push(json.frames[i][key][j].x);
+                    dataPoints["Y"][i].y.push(json.frames[i][key][j].y);
+                    dataPoints["Z"][i].y.push(json.frames[i][key][j].z);
+                }
+            }
+
+
+            function addBoxAxisData(axis, colorAxis) {
+                console.log(key + axis);
+                if (data.find(data_ => data_.name == key + axis) != undefined) {
+                    var obj = data.find(data_ => data_.name == key + axis);
+                    obj.dataPoints = dataPoints[axis];
+                } else {
+                    data.push({
+                        type: "boxAndWhisker",
+                        showInLegend: true,
+                        name: key + axis,
+                        color: colorAxis,
+                        dataPoints: dataPoints[axis]
+                    });
+                }
+            }
+
+            console.log(data);
+            addBoxAxisData("X", "red");
+            addBoxAxisData("Y", "green");
+            addBoxAxisData("Z", "blue");
 
         } else {
             dataPoints = [];
@@ -202,7 +258,7 @@ function drawPhase() {
             endValue: json.phases[i].endValue,
             opacity: .3,
             color: phaseColor[i % 6],
-            label: json.phases[i].phase,
+            label: json.phases[i].phase + ":" + json.phases[i].valueCount,
             labelFontColor: "black",
             labelFontSize: "18",
             labelFontWeight: "bold"
@@ -215,7 +271,6 @@ function drawPhase() {
 }
 
 function generateAnalysis() {
-    generateFixedAverage();
 }
 
 function generateFixedAverage() {

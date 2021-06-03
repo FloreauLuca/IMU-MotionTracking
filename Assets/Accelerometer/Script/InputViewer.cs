@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using UnityEditor;
 using UnityEngine;
@@ -33,8 +34,14 @@ public class KalmanFrame : Frame
 [Serializable]
 public class AnalysisFrame : Frame
 {
-    public Vector3 sumAcc;
-    public Vector3 averageAcc;
+    public int rawAccCount;
+    public int computeAccCount;
+    public Vector3 sumRawAcc;
+    public Vector3 averageRawAcc;
+    public Vector3[] boxRawAcc = new Vector3[5];
+    public Vector3 sumComputeAcc;
+    public Vector3 averageComputeAcc;
+    public Vector3[] boxComputeAcc = new Vector3[5];
 }
 
 [Serializable]
@@ -67,6 +74,7 @@ public class Phase
     public float startValue;
     public float endValue;
     public int phase;
+    public int valueCount;
 }
 
 [Serializable]
@@ -100,8 +108,10 @@ public class InputViewer : MonoBehaviour
 
     [SerializeField] private Phase currentPhase;
     [SerializeField] private AnalysisFrame currentAnalysisFrame;
+    public List<Vector3> currentPhaseRawAccs = new List<Vector3>();
+    public List<Vector3> currentPhaseComputeAccs = new List<Vector3>();
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -120,7 +130,7 @@ public class InputViewer : MonoBehaviour
         UpdateProcessAccGraph();
         UpdateKalmanGraph();
         UpdateAnalysisGraph();
-
+        currentPhase.valueCount++;
 
         Debug.Log("[InputViewer] Input.acceleration : " + Input.acceleration.ToString("#.000"));
         Debug.Log("[InputViewer] Input.accelerationEventCount : " + Input.accelerationEventCount);
@@ -194,7 +204,40 @@ public class InputViewer : MonoBehaviour
     
     void UpdateAnalysisGraph()
     {
-        currentAnalysisFrame.sumAcc += Input.gyro.userAcceleration * Time.deltaTime;
+        currentPhaseRawAccs.Add(rawAccFrame.userAcceleration);
+        currentPhaseComputeAccs.Add(processAccFrame.computeAccelerationInit);
+    }
+
+    void EnterAnalysisPhase()
+    {
+        currentAnalysisFrame.sumRawAcc = currentPhaseRawAccs.Aggregate((vec1, vec2) => vec1 + vec2);
+        currentAnalysisFrame.averageRawAcc = currentAnalysisFrame.sumRawAcc / (currentPhaseRawAccs.Count);
+        currentAnalysisFrame.boxRawAcc[0].x = currentPhaseRawAccs.Aggregate((smallest, next) => next.x < smallest.x ? next : smallest).x;
+        currentAnalysisFrame.boxRawAcc[0].y = currentPhaseRawAccs.Aggregate((smallest, next) => next.y < smallest.y ? next : smallest).y;
+        currentAnalysisFrame.boxRawAcc[0].z = currentPhaseRawAccs.Aggregate((smallest, next) => next.z < smallest.z ? next : smallest).z;
+        currentAnalysisFrame.boxRawAcc[1] = currentPhaseRawAccs[(1/4)*(currentPhaseRawAccs.Count+1)];
+        currentAnalysisFrame.boxRawAcc[3] = currentPhaseRawAccs[(3 / 4) * (currentPhaseRawAccs.Count + 1)];
+        currentAnalysisFrame.boxRawAcc[2] = currentAnalysisFrame.boxRawAcc[3] - currentAnalysisFrame.boxRawAcc[1];
+        currentAnalysisFrame.boxRawAcc[4].x = currentPhaseRawAccs.Aggregate((longest, next) => next.x > longest.x ? next : longest).x;
+        currentAnalysisFrame.boxRawAcc[4].y = currentPhaseRawAccs.Aggregate((longest, next) => next.y > longest.y ? next : longest).y;
+        currentAnalysisFrame.boxRawAcc[4].z = currentPhaseRawAccs.Aggregate((longest, next) => next.z > longest.z ? next : longest).z;
+        currentAnalysisFrame.rawAccCount = currentPhaseRawAccs.Count;
+
+        currentAnalysisFrame.sumComputeAcc = currentPhaseComputeAccs.Aggregate((vec1, vec2) => vec1 + vec2);
+        currentAnalysisFrame.averageComputeAcc = currentAnalysisFrame.sumComputeAcc / (currentPhaseComputeAccs.Count);
+        currentAnalysisFrame.boxComputeAcc[0].x = currentPhaseComputeAccs.Aggregate((smallest, next) => next.x < smallest.x ? next : smallest).x;
+        currentAnalysisFrame.boxComputeAcc[0].y = currentPhaseComputeAccs.Aggregate((smallest, next) => next.y < smallest.y ? next : smallest).y;
+        currentAnalysisFrame.boxComputeAcc[0].z = currentPhaseComputeAccs.Aggregate((smallest, next) => next.z < smallest.z ? next : smallest).z;
+        currentAnalysisFrame.boxComputeAcc[1] = currentPhaseComputeAccs[(1 / 4) * (currentPhaseComputeAccs.Count + 1)];
+        currentAnalysisFrame.boxComputeAcc[3] = currentPhaseComputeAccs[(3 / 4) * (currentPhaseComputeAccs.Count + 1)];
+        currentAnalysisFrame.boxComputeAcc[2] = currentAnalysisFrame.boxComputeAcc[3] - currentAnalysisFrame.boxComputeAcc[1];
+        currentAnalysisFrame.boxComputeAcc[4].x = currentPhaseComputeAccs.Aggregate((longest, next) => next.x > longest.x ? next : longest).x;
+        currentAnalysisFrame.boxComputeAcc[4].y = currentPhaseComputeAccs.Aggregate((longest, next) => next.y > longest.y ? next : longest).y;
+        currentAnalysisFrame.boxComputeAcc[4].z = currentPhaseComputeAccs.Aggregate((longest, next) => next.z > longest.z ? next : longest).z;
+        currentAnalysisFrame.computeAccCount = currentPhaseComputeAccs.Count;
+
+        currentAnalysisFrame.dt = (currentPhase.startValue + currentPhase.endValue)/2;
+        analysisGraph.frames.Add(currentAnalysisFrame);
     }
 
     public void SetPhase(int phase)
@@ -202,12 +245,17 @@ public class InputViewer : MonoBehaviour
         if (currentPhase.startValue == 0)
         {
             currentPhase = new Phase();
+            currentPhaseRawAccs = new List<Vector3>();
+            currentPhaseComputeAccs = new List<Vector3>();
             currentPhase.startValue = Time.time;
             currentPhase.phase = phase;
-        } else
+        }
+        else
         {
             EndPhase();
             currentPhase = new Phase();
+            currentPhaseRawAccs = new List<Vector3>();
+            currentPhaseComputeAccs = new List<Vector3>();
             currentPhase.startValue = Time.time;
             currentPhase.phase = phase;
         }
@@ -217,13 +265,8 @@ public class InputViewer : MonoBehaviour
     {
         if (currentPhase.startValue != 0)
         {
-            Debug.Log("[EndPhase] " + currentAnalysisFrame.sumAcc);
-            currentAnalysisFrame.averageAcc = currentAnalysisFrame.sumAcc / (currentPhase.endValue - currentPhase.startValue);
-            Debug.Log("[EndPhase] " + currentAnalysisFrame.averageAcc);
-            currentAnalysisFrame.dt = currentPhase.startValue;
-            analysisGraph.frames.Add(currentAnalysisFrame);
-
             currentPhase.endValue = Time.time;
+            EnterAnalysisPhase();
             phaseGraph.phases.Add(currentPhase);
             currentPhase = new Phase();
             currentAnalysisFrame = new AnalysisFrame();

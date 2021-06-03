@@ -1,39 +1,22 @@
 {
     "phases": [
         {
-            "startValue": 9.894293785095215,
-            "endValue": 13.067703247070313,
-            "phase": 0
+            "startValue": 3.321195602416992,
+            "endValue": 6.908387184143066,
+            "phase": 0,
+            "valueCount": 230
         },
         {
-            "startValue": 15.248990058898926,
-            "endValue": 17.50937271118164,
-            "phase": 0
+            "startValue": 7.775472640991211,
+            "endValue": 9.127764701843262,
+            "phase": 1,
+            "valueCount": 93
         },
         {
-            "startValue": 18.86650848388672,
-            "endValue": 20.616445541381837,
-            "phase": 1
-        },
-        {
-            "startValue": 22.355545043945314,
-            "endValue": 24.10003662109375,
-            "phase": 1
-        },
-        {
-            "startValue": 26.851791381835939,
-            "endValue": 30.11090850830078,
-            "phase": 2
-        },
-        {
-            "startValue": 34.01205062866211,
-            "endValue": 35.721614837646487,
-            "phase": 2
-        },
-        {
-            "startValue": 40.48457336425781,
-            "endValue": 43.867759704589847,
-            "phase": 3
+            "startValue": 9.97033405303955,
+            "endValue": 11.364529609680176,
+            "phase": 2,
+            "valueCount": 82
         }
     ]
 }
