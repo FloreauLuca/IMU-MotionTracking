@@ -54,7 +54,7 @@ public class CalculationFarm : MonoBehaviour
         if (computeResetAcceleration == Vector3.zero && computeResetVelocity != Vector3.zero)
         {
             computeResetVelocity = Vector3.zero;
-            Debug.Log("[Calculation] Reset Velocity at : " + Time.time);
+            //Debug.Log("[Calculation] Reset Velocity at : " + Time.time);
         }
         computeResetPosition += computeResetVelocity * Time.deltaTime;
 
