@@ -31,7 +31,7 @@ public class GraphButton : Editor
     {
         string json = JsonUtility.ToJson(obj, true);
         WriteToFile(json, path);
-        Debug.Log("<color=orange> JsonBuild</color>");
+        //Debug.Log("<color=orange> JsonBuild</color>");
     }
 
     private void WriteToFile(string json, string path)

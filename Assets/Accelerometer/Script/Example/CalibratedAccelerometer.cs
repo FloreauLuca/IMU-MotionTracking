@@ -28,7 +28,7 @@ public class CalibratedAccelerometer : MonoBehaviour
     {
         Vector3 theAcceleration = Input.acceleration;
         Vector3 fixedAcceleration = calibrationQuaternion * theAcceleration;
-        Debug.Log("[Calibrated] fixedAcceleration : " + Input.acceleration.ToString("#.000"));
+        //Debug.Log("[Calibrated] fixedAcceleration : " + Input.acceleration.ToString("#.000"));
         // Use fixedAcceleration for any logic that follows
         speed += fixedAcceleration - Input.gyro.gravity - Input.acceleration;
         transform.position += speed * speedModifier;

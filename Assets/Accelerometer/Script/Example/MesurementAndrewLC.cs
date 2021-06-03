@@ -73,8 +73,8 @@ public class MesurementAndrewLC : MonoBehaviour
         // update orientation
         transform.rotation = GetOrientation();
         // Display current orientation and displacement
-        SetDisplacementText(displacement);
-        SetOrientationText(transform.rotation.eulerAngles);
+        //SetDisplacementText(displacement);
+        //SetOrientationText(transform.rotation.eulerAngles);
         if (collect)
             LogData();
         // transform.rotation = ConvertRotation(gyro.attitude);

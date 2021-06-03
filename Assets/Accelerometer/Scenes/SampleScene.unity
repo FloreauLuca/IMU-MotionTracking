@@ -276,7 +276,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &274425299
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -464,7 +464,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &330664405
 RectTransform:
   m_ObjectHideFlags: 0
@@ -480,10 +480,10 @@ RectTransform:
   m_Father: {fileID: 1193096880}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 960, y: -2187.1428}
+  m_SizeDelta: {x: 1820, y: 430.47617}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &330664406
 MonoBehaviour:
@@ -598,7 +598,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &341933559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,7 +708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &426376669
 RectTransform:
   m_ObjectHideFlags: 0
@@ -724,10 +724,10 @@ RectTransform:
   m_Father: {fileID: 1193096880}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 960, y: -1706.6666}
+  m_SizeDelta: {x: 1820, y: 430.47617}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &426376670
 MonoBehaviour:
@@ -855,19 +855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ed8246efa7c83489b89cb1dbafc16f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: {x: 0, y: 0, z: 0}
-  rawAcceleration: {x: 0, y: 0, z: 0}
-  acceleration: {x: 0, y: 0, z: 0}
-  initialAcceleration: {x: 0, y: 0, z: 0}
-  gravity: {x: 0, y: 0, z: 0}
-  initialGravity: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
-  initialRotationQuat: {x: 0, y: 0, z: 0, w: 0}
-  rawRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  rotationQuat: {x: 0, y: 0, z: 0, w: 0}
-  calibrationQuaternion: {x: 0, y: 0, z: 0, w: 0}
-  speedModifier: 1
+  increaseAmplitude: 1
 --- !u!65 &432957146
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -938,7 +926,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 432957144}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.89, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1607036377}
@@ -1417,7 +1405,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &720991989
 Transform:
   m_ObjectHideFlags: 0
@@ -1513,7 +1501,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.12255715, y: -0.35313845, z: 0.046721537, w: 0.9263316}
-  m_LocalPosition: {x: 28.45, y: 13.31, z: -31.44}
+  m_LocalPosition: {x: 26, y: 25, z: -29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1537,15 +1525,41 @@ MonoBehaviour:
     frames: []
   kalmanGraph:
     frames: []
+  analysisGraph:
+    frames: []
+  lowValueGraph:
+    phases: []
   phaseGraph:
     phases: []
   gyro: 0
+  log: 0
   currentPhase:
     startValue: 0
     endValue: 0
     phase: 0
-    sumAcc: {x: 0, y: 0, z: 0}
-    averageAcc: {x: 0, y: 0, z: 0}
+    valueCount: 0
+  currentAnalysisFrame:
+    dt: 0
+    rawAccCount: 0
+    computeAccCount: 0
+    sumRawAcc: {x: 0, y: 0, z: 0}
+    averageRawAcc: {x: 0, y: 0, z: 0}
+    boxRawAcc:
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    sumComputeAcc: {x: 0, y: 0, z: 0}
+    averageComputeAcc: {x: 0, y: 0, z: 0}
+    boxComputeAcc:
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 0}
+  currentPhaseRawAccs: []
+  currentPhaseComputeAccs: []
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1999,7 +2013,7 @@ RectTransform:
   m_Father: {fileID: 1986430049}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -2084,7 +2098,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1313603734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2463,8 +2477,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 963194229}
-        m_TargetAssemblyTypeName: InputViewer, Assembly-CSharp
+      - m_Target: {fileID: 1726255656}
+        m_TargetAssemblyTypeName: CalculationFarm, Assembly-CSharp
         m_MethodName: ResetVelocity
         m_Mode: 1
         m_Arguments:
@@ -2531,7 +2545,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1607036377
 Transform:
   m_ObjectHideFlags: 0
@@ -2741,6 +2755,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1634902276}
   m_CullTransparentMesh: 1
+--- !u!1 &1726255655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1726255657}
+  - component: {fileID: 1726255656}
+  m_Layer: 0
+  m_Name: CalculationFarm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1726255656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726255655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a40aabfbbdc5f53459494a8a3864bbaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initAcceleration: {x: 0, y: 0, z: 0}
+  rawAcceleration: {x: 0, y: 0, z: 0}
+  rawVelocity: {x: 0, y: 0, z: 0}
+  computeInitAcceleration: {x: 0, y: 0, z: 0}
+  computeInitVelocity: {x: 0, y: 0, z: 0}
+  computeInitPosition: {x: 0, y: 0, z: 0}
+  computeResetAcceleration: {x: 0, y: 0, z: 0}
+  computeResetVelocity: {x: 0, y: 0, z: 0}
+  computeResetPosition: {x: 0, y: 0, z: 0}
+  kalmanVelocity: {x: 0, y: 0, z: 0}
+--- !u!4 &1726255657
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726255655}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1933569476
 GameObject:
   m_ObjectHideFlags: 0
@@ -3318,7 +3385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2021659844
 MonoBehaviour:
   m_ObjectHideFlags: 0

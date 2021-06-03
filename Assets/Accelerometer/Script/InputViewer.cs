@@ -19,9 +19,12 @@ public class RawAccFrame : Frame
 [Serializable]
 public class ProcessAccFrame : Frame
 {
-    public Vector3 computeAccelerationGrav;
-    public Vector3 computeAccelerationInit;
-    public Vector3 velocityprocessInit;
+    public Vector3 computeInitAcceleration;
+    public Vector3 computeInitVelocity;
+    public Vector3 computeInitPosition;
+    public Vector3 computeResetAcceleration;
+    public Vector3 computeResetVelocity;
+    public Vector3 computeResetPosition;
 }
 [Serializable]
 public class KalmanFrame : Frame
@@ -83,28 +86,35 @@ public class PhaseGraph
     public List<Phase> phases = new List<Phase>();
 }
 
+[Serializable]
+public class LowValuePhase
+{
+    public float startValue;
+    public float endValue;
+    public int phase;
+}
+
+[Serializable]
+public class LowValueGraph
+{
+    public List<LowValuePhase> phases = new List<LowValuePhase>();
+}
+
 
 public class InputViewer : MonoBehaviour
 {
+    private CalculationFarm calculationFarm;
+
     public RawGraph rawGraph;
     public ProcessGraph processGraph;
     public KalmanGraph kalmanGraph;
     public AnalysisGraph analysisGraph;
+    public LowValueGraph lowValueGraph;
     public PhaseGraph phaseGraph = new PhaseGraph();
 
 
-    private Vector3 velocity;
-    private Vector3 kalmanVelocity;
-    private Vector3 velocityprocessInit;
-    private Vector3 acceleration;
-
-
-    private KalmanFilterVector3 kalmanFilterRawAcc = new KalmanFilterVector3();
-    private KalmanFilterVector3 kalmanFilterComputeAcc = new KalmanFilterVector3();
-    private KalmanFilterVector3 kalmanFilterSpeed = new KalmanFilterVector3();
-    private KalmanFilterVector3 kalmanFilterProcessSpeed = new KalmanFilterVector3();
-
     [SerializeField] private bool gyro = false;
+    [SerializeField] private bool log = false;
 
     [SerializeField] private Phase currentPhase;
     [SerializeField] private AnalysisFrame currentAnalysisFrame;
@@ -115,27 +125,15 @@ public class InputViewer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Input.gyro.enabled = true;
+        calculationFarm = FindObjectOfType<CalculationFarm>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void Log()
     {
-        if (Input.acceleration == Vector3.zero) return;
-        if (Input.acceleration != Vector3.zero && acceleration == Vector3.zero)
-        {
-            acceleration = Input.acceleration;
-        }
-        UpdateRawGraph();
-        UpdateProcessAccGraph();
-        UpdateKalmanGraph();
-        UpdateAnalysisGraph();
-        currentPhase.valueCount++;
-
         Debug.Log("[InputViewer] Input.acceleration : " + Input.acceleration.ToString("#.000"));
         Debug.Log("[InputViewer] Input.accelerationEventCount : " + Input.accelerationEventCount);
         Debug.Log("[InputViewer] Input.gyro.gravity : " + Input.gyro.gravity.ToString("#.000"));
-        Debug.Log("[InputViewer] process acceleration : " + (Input.acceleration - acceleration).ToString("#.000"));
+        Debug.Log("[InputViewer] process acceleration : " + (calculationFarm.computeInitAcceleration).ToString("#.000"));
         string log = "[InputViewer] Input.accelerationEvents : ";
         for (int i = 0; i < Input.accelerationEventCount; i++)
         {
@@ -150,7 +148,23 @@ public class InputViewer : MonoBehaviour
             Debug.Log("[InputViewer] Input.gyro.rotationRate : " + Input.gyro.rotationRate.ToString("#.000"));
             Debug.Log("[InputViewer] Input.gyro.ToString() : " + Input.gyro.ToString());
         }
-        
+
+
+    }
+
+    // Update is called once per frame
+    void LateUpdate()
+    {
+        if (Input.acceleration == Vector3.zero) return;
+        UpdateRawGraph();
+        UpdateProcessAccGraph();
+        //UpdateKalmanGraph();
+        UpdateAnalysisGraph();
+        UpdateLowValueGraph();
+        currentPhase.valueCount++;
+        if (log)
+            Log();
+
     }
 
     private RawAccFrame rawAccFrame;
@@ -162,8 +176,7 @@ public class InputViewer : MonoBehaviour
         rawAccFrame.acceleration = Input.acceleration;
         rawAccFrame.gravity = Input.gyro.gravity;
         rawAccFrame.userAcceleration = Input.gyro.userAcceleration;
-        velocity += rawAccFrame.userAcceleration;
-        rawAccFrame.rawVelocity = velocity;
+        rawAccFrame.rawVelocity = calculationFarm.rawVelocity;
         rawGraph.frames.Add(rawAccFrame);
     }
 
@@ -172,17 +185,12 @@ public class InputViewer : MonoBehaviour
     {
         processAccFrame = new ProcessAccFrame();
         processAccFrame.dt = Time.time;
-        //Remove init noise
-        processAccFrame.computeAccelerationInit = (Input.acceleration - acceleration);
-        //Remove Standard noise
-        if (Mathf.Abs(processAccFrame.computeAccelerationInit.x) > 0.05f)
-            velocityprocessInit += processAccFrame.computeAccelerationInit.x * Vector3.right;
-        if (Mathf.Abs(processAccFrame.computeAccelerationInit.y) > 0.05f)
-            velocityprocessInit += processAccFrame.computeAccelerationInit.y * Vector3.up;
-        if (Mathf.Abs(processAccFrame.computeAccelerationInit.z) > 0.05f)
-            velocityprocessInit += processAccFrame.computeAccelerationInit.z * Vector3.forward;
-
-        processAccFrame.velocityprocessInit = velocityprocessInit;
+        processAccFrame.computeInitAcceleration = calculationFarm.computeInitAcceleration;
+        processAccFrame.computeInitVelocity = calculationFarm.computeInitVelocity;
+        processAccFrame.computeInitPosition = calculationFarm.computeInitPosition;
+        processAccFrame.computeResetAcceleration = calculationFarm.computeResetAcceleration;
+        processAccFrame.computeResetVelocity = calculationFarm.computeResetVelocity;
+        processAccFrame.computeResetPosition = calculationFarm.computeResetPosition;
         processGraph.frames.Add(processAccFrame);
     }
 
@@ -191,13 +199,13 @@ public class InputViewer : MonoBehaviour
     {
         kalmanFrame = new KalmanFrame();
         kalmanFrame.dt = Time.time;
-        kalmanFrame.kalmanRawAcc = kalmanFilterRawAcc.Update(Input.acceleration);
-        kalmanFrame.kalmanComputeAcc = kalmanFilterComputeAcc.Update(processAccFrame.computeAccelerationInit);
+        kalmanFrame.kalmanRawAcc = calculationFarm.kalmanFilterRawAcc.Update(Input.acceleration);
+        kalmanFrame.kalmanComputeAcc = calculationFarm.kalmanFilterComputeAcc.Update(processAccFrame.computeInitAcceleration);
         //kalmanFrame.kalmanComputeAcc = NaiveMovingTest.RoundVector3(kalmanFrame.kalmanComputeAcc, 2);
-        kalmanVelocity += kalmanFrame.kalmanComputeAcc;
+        calculationFarm.kalmanVelocity += kalmanFrame.kalmanComputeAcc;
         //kalmanVelocity = kalmanFilterSpeed.Update(kalmanVelocity);
-        kalmanFrame.kalmanSpeed = kalmanVelocity;
-        kalmanFrame.kalmanProcessSpeed = kalmanFilterProcessSpeed.Update(kalmanVelocity);
+        kalmanFrame.kalmanSpeed = calculationFarm.kalmanVelocity;
+        kalmanFrame.kalmanProcessSpeed = calculationFarm.kalmanFilterProcessSpeed.Update(calculationFarm.kalmanVelocity);
         kalmanGraph.frames.Add(kalmanFrame);
 
     }
@@ -205,7 +213,24 @@ public class InputViewer : MonoBehaviour
     void UpdateAnalysisGraph()
     {
         currentPhaseRawAccs.Add(rawAccFrame.userAcceleration);
-        currentPhaseComputeAccs.Add(processAccFrame.computeAccelerationInit);
+        currentPhaseComputeAccs.Add(processAccFrame.computeInitAcceleration);
+    }
+
+    private LowValuePhase lowValuePhase = new LowValuePhase();
+
+    void UpdateLowValueGraph()
+    {
+        if (calculationFarm.computeResetAcceleration == Vector3.zero && lowValuePhase.startValue == 0)
+        {
+            lowValuePhase = new LowValuePhase();
+            lowValuePhase.startValue = Time.time;
+        }
+        if (lowValuePhase.startValue != 0 && calculationFarm.computeResetAcceleration != Vector3.zero)
+        {
+            lowValuePhase.endValue = Time.time;
+            lowValueGraph.phases.Add(lowValuePhase);
+            lowValuePhase = new LowValuePhase();
+        }
     }
 
     void EnterAnalysisPhase()
@@ -273,12 +298,6 @@ public class InputViewer : MonoBehaviour
 
         }
     }
-
-    public void ResetVelocity()
-    {
-        velocity = Vector3.zero;
-        velocityprocessInit = Vector3.zero;
-    }
 }
 
 [CustomEditor(typeof(InputViewer))] //1
@@ -292,5 +311,6 @@ public class InputGraphButton : GraphButton
         CreateJson(inputViewer.kalmanGraph, "Assets/Graph/kalmanGraph.graph");
         CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph.graph");
         CreateJson(inputViewer.analysisGraph, "Assets/Graph/analysisGraph.graph");
+        CreateJson(inputViewer.lowValueGraph, "Assets/Graph/lowValueGraph.graph");
     }
 }
