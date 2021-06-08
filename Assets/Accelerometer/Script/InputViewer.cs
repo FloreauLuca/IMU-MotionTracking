@@ -46,6 +46,13 @@ public class AnalysisFrame : Frame
     public Vector3 averageComputeAcc;
     public Vector3[] boxComputeAcc = new Vector3[5];
 }
+[Serializable]
+public class ABerkFrame : Frame
+{
+    public Vector3 aBerkAcceleration;
+    public Vector3 aBerkVelocity;
+    public Vector3 aBerkPosition;
+}
 
 [Serializable]
 public class RawGraph
@@ -69,6 +76,12 @@ public class KalmanGraph
 public class AnalysisGraph
 {
     public List<AnalysisFrame> frames = new List<AnalysisFrame>();
+}
+
+[Serializable]
+public class ABerkGraph
+{
+    public List<ABerkFrame> frames = new List<ABerkFrame>();
 }
 
 [Serializable]
@@ -110,6 +123,7 @@ public class InputViewer : MonoBehaviour
     public KalmanGraph kalmanGraph;
     public AnalysisGraph analysisGraph;
     public LowValueGraph lowValueGraph;
+    public ABerkGraph aBerkGraph;
     public PhaseGraph phaseGraph = new PhaseGraph();
 
 
@@ -159,6 +173,7 @@ public class InputViewer : MonoBehaviour
         UpdateRawGraph();
         UpdateProcessAccGraph();
         //UpdateKalmanGraph();
+        UpdateABerkGraph();
         UpdateAnalysisGraph();
         UpdateLowValueGraph();
         currentPhase.valueCount++;
@@ -209,7 +224,18 @@ public class InputViewer : MonoBehaviour
         kalmanGraph.frames.Add(kalmanFrame);
 
     }
-    
+    private ABerkFrame aBerkFrame;
+    void UpdateABerkGraph()
+    {
+        aBerkFrame = new ABerkFrame();
+        aBerkFrame.dt = Time.time;
+        aBerkFrame.aBerkAcceleration = calculationFarm.aBerkAcceleration;
+        aBerkFrame.aBerkVelocity = calculationFarm.aBerkVelocity;
+        aBerkFrame.aBerkPosition = calculationFarm.aBerkPosition;
+        aBerkGraph.frames.Add(aBerkFrame);
+
+    }
+
     void UpdateAnalysisGraph()
     {
         currentPhaseRawAccs.Add(rawAccFrame.userAcceleration);
@@ -312,5 +338,6 @@ public class InputGraphButton : GraphButton
         CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph.graph");
         CreateJson(inputViewer.analysisGraph, "Assets/Graph/analysisGraph.graph");
         CreateJson(inputViewer.lowValueGraph, "Assets/Graph/lowValueGraph.graph");
+        CreateJson(inputViewer.aBerkGraph, "Assets/Graph/aBerkGraph.graph");
     }
 }

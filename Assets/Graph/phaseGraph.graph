@@ -1,34 +1,3 @@
 {
-    "phases": [
-        {
-            "startValue": 3.049588203430176,
-            "endValue": 6.355792999267578,
-            "phase": 0,
-            "valueCount": 104
-        },
-        {
-            "startValue": 11.782984733581543,
-            "endValue": 16.389312744140626,
-            "phase": 1,
-            "valueCount": 335
-        },
-        {
-            "startValue": 17.646230697631837,
-            "endValue": 23.194324493408204,
-            "phase": 2,
-            "valueCount": 404
-        },
-        {
-            "startValue": 27.279062271118165,
-            "endValue": 28.628314971923829,
-            "phase": 2,
-            "valueCount": 101
-        },
-        {
-            "startValue": 28.628314971923829,
-            "endValue": 31.987380981445314,
-            "phase": 2,
-            "valueCount": 248
-        }
-    ]
+    "phases": []
 }

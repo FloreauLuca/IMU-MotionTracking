@@ -17,6 +17,10 @@ public class CalculationFarm : MonoBehaviour
 
     public Vector3 kalmanVelocity;
 
+    public Vector3 aBerkAcceleration;
+    public Vector3 aBerkVelocity;
+    public Vector3 aBerkPosition;
+
 
     public KalmanFilterVector3 kalmanFilterRawAcc = new KalmanFilterVector3();
     public KalmanFilterVector3 kalmanFilterComputeAcc = new KalmanFilterVector3();
@@ -43,7 +47,7 @@ public class CalculationFarm : MonoBehaviour
         rawVelocity += rawAcceleration;
 
         //Remove init delta
-        computeInitAcceleration = Input.gyro.userAcceleration;
+        computeInitAcceleration = rawAcceleration - initAcceleration;
         //Remove Standard noise
         computeInitAcceleration = RemoveBaseNoise(computeInitAcceleration, 0.05f);
         computeInitVelocity += computeInitAcceleration; 
