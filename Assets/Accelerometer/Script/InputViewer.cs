@@ -30,9 +30,13 @@ public class ProcessAccFrame : Frame
 public class KalmanFrame : Frame
 {
     public Vector3 kalmanRawAcc;
+    public Vector3 kalmanRawSpeed;
+
     public Vector3 kalmanComputeAcc;
-    public Vector3 kalmanSpeed;
-    public Vector3 kalmanProcessSpeed;
+    public Vector3 kalmanComputeSpeed;
+
+    public Vector3 kalmanK;
+    public Vector3 kalmanP;
 }
 [Serializable]
 public class AnalysisFrame : Frame
@@ -166,20 +170,20 @@ public class InputViewer : MonoBehaviour
 
     }
 
+    private float dt;
     // Update is called once per frame
     void LateUpdate()
     {
         if (Input.acceleration == Vector3.zero) return;
         UpdateRawGraph();
         UpdateProcessAccGraph();
-        //UpdateKalmanGraph();
+        UpdateKalmanGraph();
         UpdateABerkGraph();
         UpdateAnalysisGraph();
         UpdateLowValueGraph();
         currentPhase.valueCount++;
         if (log)
             Log();
-
     }
 
     private RawAccFrame rawAccFrame;
@@ -214,13 +218,12 @@ public class InputViewer : MonoBehaviour
     {
         kalmanFrame = new KalmanFrame();
         kalmanFrame.dt = Time.time;
-        kalmanFrame.kalmanRawAcc = calculationFarm.kalmanFilterRawAcc.Update(Input.acceleration);
-        kalmanFrame.kalmanComputeAcc = calculationFarm.kalmanFilterComputeAcc.Update(processAccFrame.computeInitAcceleration);
-        //kalmanFrame.kalmanComputeAcc = NaiveMovingTest.RoundVector3(kalmanFrame.kalmanComputeAcc, 2);
-        calculationFarm.kalmanVelocity += kalmanFrame.kalmanComputeAcc;
-        //kalmanVelocity = kalmanFilterSpeed.Update(kalmanVelocity);
-        kalmanFrame.kalmanSpeed = calculationFarm.kalmanVelocity;
-        kalmanFrame.kalmanProcessSpeed = calculationFarm.kalmanFilterProcessSpeed.Update(calculationFarm.kalmanVelocity);
+        kalmanFrame.kalmanRawAcc = calculationFarm.kalmanAcceleration;
+        kalmanFrame.kalmanRawSpeed = calculationFarm.kalmanVelocity;
+        kalmanFrame.kalmanComputeAcc = calculationFarm.kalmanComputeAcceleration;
+        kalmanFrame.kalmanComputeSpeed = calculationFarm.kalmanComputeVelocity;
+        kalmanFrame.kalmanK = calculationFarm.kalmanK;
+        kalmanFrame.kalmanP = calculationFarm.kalmanP;
         kalmanGraph.frames.Add(kalmanFrame);
 
     }

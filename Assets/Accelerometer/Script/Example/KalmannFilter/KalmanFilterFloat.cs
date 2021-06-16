@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
+[Serializable]
 /// <summary>A Kalman filter implementation for <c>float</c> values.</summary>
 public class KalmanFilterFloat {
 
@@ -21,6 +24,9 @@ public class KalmanFilterFloat {
 	private float p = DEFAULT_P;
 	private float x;
 	private float k;
+
+    public float K => k;
+    public float P => p;
 
 	//-----------------------------------------------------------------------------------------
 	// Constructors:
@@ -52,7 +58,9 @@ public class KalmanFilterFloat {
 		// update measurement.
 		{
 			k = (p + q) / (p + q + r);
+			Debug.Log(k);
 			p = r * (p + q) / (r + p + q);
+            Debug.Log(p);
 		}
 
 		// filter result back into calculation.

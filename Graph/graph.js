@@ -64,7 +64,7 @@ function createCheckbox(name, container) {
     checkbox.type = "checkbox";
     checkbox.name = name;
     checkbox.value = "value";
-    checkbox.checked = true;
+    checkbox.checked = false;
     checkbox.id = name;
 
     var label = document.createElement("label");
