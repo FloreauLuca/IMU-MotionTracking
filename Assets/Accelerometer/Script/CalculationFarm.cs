@@ -31,6 +31,8 @@ public class CalculationFarm : MonoBehaviour
     public Vector3 kalmanComputeVelocity;
     public Vector3 kalmanK;
     public Vector3 kalmanP;
+    public Vector3 kalmanQ;
+    public Vector3 kalmanR;
 
     // Start is called before the first frame update
     void Start()
@@ -39,7 +41,7 @@ public class CalculationFarm : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //Wait acceleration initialisation
         if (Input.acceleration == Vector3.zero) return;
@@ -47,9 +49,11 @@ public class CalculationFarm : MonoBehaviour
         {
             initAcceleration = Input.gyro.userAcceleration;
         }
+        if (Input.accelerationEventCount != 1)
+            Debug.LogError("Multiple Acceleration during the last frame");
 
         rawAcceleration = Input.gyro.userAcceleration;
-        rawVelocity += rawAcceleration;
+        rawVelocity += rawAcceleration * Time.deltaTime;
 
         //Remove init delta
         computeInitAcceleration = Input.acceleration - Input.gyro.gravity;

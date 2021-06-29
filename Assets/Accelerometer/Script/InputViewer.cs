@@ -37,6 +37,9 @@ public class KalmanFrame : Frame
 
     public Vector3 kalmanK;
     public Vector3 kalmanP;
+
+    public Vector3 kalmanQ;
+    public Vector3 kalmanR;
 }
 [Serializable]
 public class AnalysisFrame : Frame
@@ -102,6 +105,7 @@ public class PhaseGraph
 {
     public List<Phase> phases = new List<Phase>();
 }
+
 
 [Serializable]
 public class LowValuePhase
@@ -224,6 +228,8 @@ public class InputViewer : MonoBehaviour
         kalmanFrame.kalmanComputeSpeed = calculationFarm.kalmanComputeVelocity;
         kalmanFrame.kalmanK = calculationFarm.kalmanK;
         kalmanFrame.kalmanP = calculationFarm.kalmanP;
+        kalmanFrame.kalmanQ = calculationFarm.kalmanQ;
+        kalmanFrame.kalmanR = calculationFarm.kalmanR;
         kalmanGraph.frames.Add(kalmanFrame);
 
     }

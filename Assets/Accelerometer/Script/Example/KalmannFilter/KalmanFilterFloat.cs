@@ -27,6 +27,8 @@ public class KalmanFilterFloat {
 
     public float K => k;
     public float P => p;
+    public float Q => q;
+    public float R => r;
 
 	//-----------------------------------------------------------------------------------------
 	// Constructors:
@@ -58,9 +60,7 @@ public class KalmanFilterFloat {
 		// update measurement.
 		{
 			k = (p + q) / (p + q + r);
-			Debug.Log(k);
 			p = r * (p + q) / (r + p + q);
-            Debug.Log(p);
 		}
 
 		// filter result back into calculation.
