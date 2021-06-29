@@ -13,7 +13,37 @@ public struct GraphFrame
     {
         this.dt = dt;
         this.value = value;
+        dot = null;
+        line = null;
     }
+
+    public void SetDot(GameObject dot)
+    {
+        this.dot = dot;
+    }
+
+    public void SetLine(GameObject line)
+    {
+        this.line = line;
+
+    }
+
+    public void MoveDot(Vector2 newPosition)
+    {
+        dot.GetComponent<RectTransform>().anchoredPosition = newPosition;
+    }
+
+    public void UpdateLine(Vector2 dotPositionA, Vector2 dotPositionB)
+    {
+        if (!line) return;
+        RectTransform rectTransform = line.GetComponent<RectTransform>();
+        Vector2 dir = (dotPositionB - dotPositionA).normalized;
+        float distance = Vector2.Distance(dotPositionA, dotPositionB);
+        rectTransform.sizeDelta = new Vector2(distance, 3);
+        rectTransform.anchoredPosition = dotPositionA + dir * distance * 0.5f;
+        rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+    }
+
     public float dt;
     public float value;
     public GameObject dot;
@@ -22,15 +52,54 @@ public struct GraphFrame
 
 public class WindowGraph : MonoBehaviour
 {
-    [SerializeField] private Sprite circleSprite;
+    private enum GraphTypes
+    {
+        RAW_ACC,
+        KALMAN_ACC,
+        COMPUTE_ACC,
+        RAW_VEL,
+        KALMAN_VEL,
+        COMPUTE_VEL,
+        RAW_POS,
+        KALMAN_POS,
+        COMPUTE_POS
+    }
 
+    private enum AxisTypes
+    {
+        X,
+        Y,
+        Z
+    }
+
+    [Header("Display")]
+    [SerializeField] private Sprite circleSprite;
+    [SerializeField] private Color graphColor;
+    [SerializeField] private bool displayDot;
+
+    [Header("Transform")]
     [SerializeField] private RectTransform graphContainer;
     [SerializeField] private RectTransform labelTextX;
     [SerializeField] private RectTransform labelTextY;
     [SerializeField] private RectTransform dashTemplateX;
     [SerializeField] private RectTransform dashTemplateY;
 
-    private List<GameObject> gameObjectList = new List<GameObject>();
+    [Header("GraphParameter")]
+    [SerializeField] private int axesCountX = 5;
+    [SerializeField] private int axesCountY = 5;
+    [SerializeField] private float timeDelta = 5.0f;
+    [SerializeField] private float yMaxDelta = 0;
+
+    [Header("GraphData")]
+    [SerializeField] private GraphTypes graphTypes = GraphTypes.RAW_ACC;
+    [SerializeField] private AxisTypes axisTypes = AxisTypes.X;
+
+    private Vector2 graphSize;
+
+    private List<GameObject> axesX = new List<GameObject>();
+    private List<GameObject> textX = new List<GameObject>();
+    private List<GameObject> axesY = new List<GameObject>();
+    private List<GameObject> textY = new List<GameObject>();
 
     private List<GraphFrame> frames;
 
@@ -38,32 +107,89 @@ public class WindowGraph : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        frames = new List<GraphFrame>()
-        {
-            new GraphFrame(timer, Input.acceleration.x),
-        };
-        ShowGraph(frames);
+        graphSize = graphContainer.sizeDelta;
+        frames = new List<GraphFrame>();
+        CreateLines();
+    }
+
+    private CalculationFarm calculationFarm;
+    // Start is called before the first frame update
+    void Start()
+    {
+        calculationFarm = FindObjectOfType<CalculationFarm>();
     }
 
     void Update()
     {
         timer += Time.deltaTime;
-        frames.Add(new GraphFrame(timer, Input.acceleration.x));
-        List<GraphFrame> displayList = frames;
-        if (frames.Count > 100)
+        frames.Add(new GraphFrame(timer, GetData()));
+        ShowGraph();
+        UpdateAxes(timer - timeDelta);
+    }
+
+
+    private void ShowGraph()
+    {
+
+        foreach (var frame in frames)
         {
-            displayList = new List<GraphFrame>();
-            displayList.AddRange(frames.GetRange(frames.Count - 100, 100));
+            if (Mathf.Abs(frame.value) > yMaxDelta/2) yMaxDelta = Mathf.Abs(frame.value)*2;
         }
-        ShowGraph(displayList);
+
+        float yMinimum = -yMaxDelta / 2;
+        float xMinimum = timer - timeDelta;
+        float xMaximum = timer;
+        
+
+        GameObject lastCircleGameObject = null;
+        for (int i = 0; i < frames.Count; i++)
+        {
+            if (frames[i].dt < xMaximum - timeDelta)
+            {
+                if (frames[i].dot)
+                    frames[i].dot.SetActive(false);
+                if (frames[i].line)
+                    frames[i].line.SetActive(false);
+                continue;
+            }
+            float xPosition = ((frames[i].dt - xMinimum )/ timeDelta) * graphSize.x;
+            float yPosition = ((frames[i].value - yMinimum) / yMaxDelta) * graphSize.y;
+            if (!frames[i].dot)
+            {
+                GraphFrame frame = frames[i];
+                GameObject circleGameObject = CreateCircle(new Vector2(xPosition, yPosition));
+                frame.dot = circleGameObject;
+                if (lastCircleGameObject != null)
+                {
+                    GameObject lineGameObject = CreateDotConnection(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition, circleGameObject.GetComponent<RectTransform>().anchoredPosition);
+                    frame.line = lineGameObject;
+                }
+
+                frames[i] = frame;
+                lastCircleGameObject = circleGameObject;
+            }
+            else
+            {
+                frames[i].MoveDot(new Vector2(xPosition, yPosition));
+                if (lastCircleGameObject != null)
+                {
+                    frames[i].UpdateLine(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition,
+                        frames[i].dot.GetComponent<RectTransform>().anchoredPosition);
+                }
+
+                lastCircleGameObject = frames[i].dot;
+            }
+        }
 
     }
 
     private GameObject CreateCircle(Vector2 anchorPosition)
     {
         GameObject gameObject = new GameObject("Dot", typeof(Image));
+        gameObject.SetActive(displayDot);
         gameObject.transform.SetParent(graphContainer, false);
         gameObject.GetComponent<Image>().sprite = circleSprite;
+        gameObject.GetComponent<Image>().color = graphColor;
         RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
         rectTransform.anchoredPosition = anchorPosition;
         rectTransform.sizeDelta = new Vector2(11, 11);
@@ -72,91 +198,11 @@ public class WindowGraph : MonoBehaviour
         return gameObject;
     }
 
-    private void ShowGraph(List<GraphFrame> frames)
-    {
-        foreach (var gameObject in gameObjectList)
-        {
-            Destroy(gameObject);
-        }
-        gameObjectList.Clear();
-
-        float graphHeight = graphContainer.sizeDelta.y;
-        float graphWidth = graphContainer.sizeDelta.x;
-
-        float yMinimum = frames[0].value;
-        float yMaximum = frames[0].value;
-        float xMinimum = frames[0].dt;
-        float xMaximum = frames[0].dt;
-
-        foreach (var frame in frames)
-        {
-            if (Mathf.Abs(frame.value) > yMaximum) yMaximum = Mathf.Abs(frame.value);
-            if (frame.dt > xMaximum) xMaximum = frame.dt;
-            if (frame.dt < xMinimum) xMinimum = frame.dt;
-        }
-
-        yMinimum = -yMaximum;
-
-        yMinimum -= (yMaximum - yMinimum) * 0.1f;
-        yMaximum += (yMaximum - yMinimum)* 0.1f;
-        xMaximum += (xMaximum - xMinimum) * 0.05f;
-
-        GameObject lastCircleGameObject = null;
-        for (int i = 0; i < frames.Count; i++)
-        {
-            float xPosition = ((frames[i].dt - xMinimum )/ (xMaximum - xMinimum)) * graphWidth;
-            float yPosition = ((frames[i].value - yMinimum) / (yMaximum - yMinimum)) * graphHeight;
-            GameObject circleGameObject = CreateCircle(new Vector2(xPosition, yPosition));
-            gameObjectList.Add(circleGameObject);
-            if (lastCircleGameObject != null)
-            {
-                GameObject lineGameObject = CreateDotConnection(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition, circleGameObject.GetComponent<RectTransform>().anchoredPosition);
-                gameObjectList.Add(lineGameObject);
-            }
-            lastCircleGameObject = circleGameObject;
-        }
-
-        float labelDeltaX = (xMaximum - xMinimum) / 5.0f;
-        for (float i = xMinimum; i < xMaximum; i+= labelDeltaX)
-        {
-            float xPosition = i;
-            RectTransform labelX = Instantiate(labelTextX);
-            gameObjectList.Add(labelX.gameObject);
-            labelX.SetParent(graphContainer);
-            labelX.gameObject.SetActive(true);
-            labelX.anchoredPosition = new Vector2(((xPosition - xMinimum) / (xMaximum - xMinimum)) * graphWidth, -20.0f);
-            labelX.GetComponent<TextMeshProUGUI>().text = (xPosition).ToString("#0.##");
-
-            RectTransform dashX = Instantiate(dashTemplateX);
-            gameObjectList.Add(dashX.gameObject);
-            dashX.SetParent(graphContainer);
-            dashX.gameObject.SetActive(true);
-            dashX.anchoredPosition = new Vector2(((xPosition - xMinimum) / (xMaximum - xMinimum)) * graphWidth, 0.0f);
-        }
-        float labelDeltaY = (yMaximum - yMinimum) / 5.0f;
-        for (float i = yMinimum; i < yMaximum; i+= labelDeltaY)
-        {
-            float yPosition = i;
-            RectTransform labelY = Instantiate(labelTextY);
-            gameObjectList.Add(labelY.gameObject);
-            labelY.SetParent(graphContainer);
-            labelY.gameObject.SetActive(true);
-            labelY.anchoredPosition = new Vector2(-7.0f, ((yPosition - yMinimum) / (yMaximum - yMinimum)) * graphHeight);
-            labelY.GetComponent<TextMeshProUGUI>().text = (yPosition).ToString();
-
-            RectTransform dashY = Instantiate(dashTemplateY);
-            gameObjectList.Add(dashY.gameObject);
-            dashY.SetParent(graphContainer);
-            dashY.gameObject.SetActive(true);
-            dashY.anchoredPosition = new Vector2(0.0f, ((yPosition - yMinimum) / (yMaximum - yMinimum)) * graphHeight);
-        }
-    }
-
     private GameObject CreateDotConnection(Vector2 dotPositionA, Vector2 dotPositionB)
     {
         GameObject gameObject = new GameObject("DotConnection", typeof(Image));
         gameObject.transform.SetParent(graphContainer, false);
-        gameObject.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+        gameObject.GetComponent<Image>().color = graphColor;
         RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
         Vector2 dir = (dotPositionB - dotPositionA).normalized;
         float distance = Vector2.Distance(dotPositionA, dotPositionB);
@@ -166,5 +212,129 @@ public class WindowGraph : MonoBehaviour
         rectTransform.anchoredPosition = dotPositionA + dir * distance * 0.5f;
         rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
         return gameObject;
+    }
+    
+    private void CreateLines()
+    {
+        for (float i = 0; i < axesCountX; i ++)
+        {
+            float xPosition = i;
+            RectTransform labelX = Instantiate(labelTextX);
+            labelX.SetParent(graphContainer);
+            labelX.gameObject.SetActive(true);
+            labelX.anchoredPosition = new Vector2((i / axesCountX) * graphSize.x, -20.0f);
+            labelX.GetComponent<TextMeshProUGUI>().text = (xPosition).ToString("#0.##");
+            textX.Add(labelX.gameObject);
+
+            RectTransform dashX = Instantiate(dashTemplateX);
+            dashX.SetParent(graphContainer);
+            dashX.gameObject.SetActive(true);
+            labelX.anchoredPosition = new Vector2((i / axesCountX) * graphSize.x, 0.0f);
+            axesX.Add(dashX.gameObject);
+        }
+        for (float i = 0; i < axesCountY; i ++)
+        {
+            float yPosition = i;
+            RectTransform labelY = Instantiate(labelTextY);
+            labelY.SetParent(graphContainer);
+            labelY.gameObject.SetActive(true);
+            labelY.anchoredPosition = new Vector2(-7.0f, (i / axesCountY) * graphSize.y);
+            labelY.GetComponent<TextMeshProUGUI>().text = (yPosition).ToString();
+            textY.Add(labelY.gameObject);
+
+            RectTransform dashY = Instantiate(dashTemplateY);
+            dashY.SetParent(graphContainer);
+            dashY.gameObject.SetActive(true);
+            dashY.anchoredPosition = new Vector2(0.0f, (i / axesCountY) * graphSize.y);
+            axesY.Add(dashY.gameObject);
+        }
+    }
+
+    private void UpdateAxes(float startTime)
+    {
+        for (int i = 0; i < axesCountX; i ++)
+        {
+            float xValue = ((float)i / axesCountX) * timeDelta + startTime;
+            float xPosition = ((float)i /axesCountX) * graphSize.x;
+            RectTransform labelX = textX[i].GetComponent<RectTransform>();
+            labelX.SetParent(graphContainer);
+            labelX.gameObject.SetActive(true);
+            labelX.anchoredPosition = new Vector2(xPosition, -20.0f);
+            labelX.GetComponent<TextMeshProUGUI>().text = (xValue).ToString("#0.##");
+
+            RectTransform dashX = axesX[i].GetComponent<RectTransform>();
+            dashX.SetParent(graphContainer);
+            dashX.gameObject.SetActive(true);
+            dashX.anchoredPosition = new Vector2(xPosition, 0.0f);
+        }
+        for (int i = 0; i < axesCountY; i++)
+        {
+            float yValue = (((float)i / (axesCountY-1)) * yMaxDelta) - (yMaxDelta / 2);
+            float yPosition = ((float)i / (axesCountY-1)) * graphSize.y;
+            RectTransform labelY = textY[i].GetComponent<RectTransform>();
+            labelY.SetParent(graphContainer);
+            labelY.gameObject.SetActive(true);
+            labelY.anchoredPosition = new Vector2(-7.0f, yPosition);
+            labelY.GetComponent<TextMeshProUGUI>().text = (yValue).ToString("#0.###");
+
+            RectTransform dashY = axesY[i].GetComponent<RectTransform>();
+            dashY.SetParent(graphContainer);
+            dashY.gameObject.SetActive(true);
+            dashY.anchoredPosition = new Vector2(0.0f, yPosition);
+        }
+    }
+
+    private float GetData()
+    {
+        Vector3 dataVec = Vector3.zero;
+        switch (graphTypes)
+        {
+            case GraphTypes.RAW_ACC:
+                dataVec = calculationFarm.rawAcceleration;
+                break;
+            case GraphTypes.KALMAN_ACC:
+                dataVec = calculationFarm.kalmanAcceleration;
+                break;
+            case GraphTypes.COMPUTE_ACC:
+                dataVec = calculationFarm.computeResetAcceleration;
+                break;
+            case GraphTypes.RAW_VEL:
+                dataVec = calculationFarm.rawVelocity;
+                break;
+            case GraphTypes.KALMAN_VEL:
+                dataVec = calculationFarm.kalmanVelocity;
+                break;
+            case GraphTypes.COMPUTE_VEL:
+                dataVec = calculationFarm.computeResetVelocity;
+                break;
+            case GraphTypes.RAW_POS:
+                dataVec = calculationFarm.rawVelocity;
+                break;
+            case GraphTypes.KALMAN_POS:
+                dataVec = calculationFarm.kalmanComputeAcceleration;
+                break;
+            case GraphTypes.COMPUTE_POS:
+                dataVec = calculationFarm.computeResetPosition;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        switch (axisTypes)
+        {
+            case AxisTypes.X:
+                return dataVec.x;
+                break;
+            case AxisTypes.Y:
+                return dataVec.y;
+                break;
+            case AxisTypes.Z:
+                return dataVec.z;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        return 0;
     }
 }
