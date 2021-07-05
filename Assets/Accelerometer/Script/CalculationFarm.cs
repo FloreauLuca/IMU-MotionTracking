@@ -16,35 +16,15 @@ public class CalculationFarm : MonoBehaviour
     public float time;
 
     public Vector3 initAcceleration;
-    public Vector3 rawAcceleration;
-    public Vector3 userAcceleration;
-    public Vector3 gravity;
-    public Vector3 rawVelocity;
-    public Vector3 computeInitAcceleration;
-    public Vector3 computeInitVelocity;
-    public Vector3 computeInitPosition;
-    public Vector3 computeResetAcceleration;
-    public Vector3 computeResetVelocity;
-    public Vector3 computeResetPosition;
+    public Vector3 usedAcceleration;
+
+    public RawAccFrame currRawAccFrame;
+
+    public ProcessAccFrame currProcessAccFrame;
+
+    public ABerkFrame currABerkFrame;
     
-    public Vector3 aBerkAcceleration;
-    public Vector3 aBerkVelocity;
-    public Vector3 aBerkPosition;
-
-
-    public KalmanFilterVector3 kalmanFilterRawAcc = new KalmanFilterVector3();
-    public KalmanFilterVector3 kalmanFilterComputeAcc = new KalmanFilterVector3();
-    public KalmanFilterVector3 kalmanFilterSpeed = new KalmanFilterVector3();
-    public KalmanFilterVector3 kalmanFilterProcessSpeed = new KalmanFilterVector3();
-
-    public Vector3 kalmanAcceleration;
-    public Vector3 kalmanVelocity;
-    public Vector3 kalmanComputeAcceleration;
-    public Vector3 kalmanComputeVelocity;
-    public Vector3 kalmanK;
-    public Vector3 kalmanP;
-    public Vector3 kalmanQ;
-    public Vector3 kalmanR;
+    public KalmanFrame currKalmanFrame;
 
     void ReadFile(string path)
     {
@@ -76,68 +56,76 @@ public class CalculationFarm : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (resetCount)
-        {
-            frameIndex = 0;
-            resetCount = false;
-        }
-        //Wait acceleration initialisation
-        if (Input.acceleration == Vector3.zero) return;
-        if (Input.acceleration != Vector3.zero && initAcceleration == Vector3.zero)
-        {
-            initAcceleration = Input.gyro.userAcceleration;
-        }
-        if (Input.accelerationEventCount != 1)
-            Debug.LogError("Multiple Acceleration during the last frame");
+        
         if (useRunTimeData)
         {
-            time = Time.time;
+            //Wait acceleration initialisation
+            if (Input.acceleration == Vector3.zero) return;
+            if (Input.acceleration != Vector3.zero && initAcceleration == Vector3.zero)
+            {
+                initAcceleration = Input.gyro.userAcceleration;
+            }
+            if (Input.accelerationEventCount != 1)
+                Debug.LogError("Multiple Acceleration during the last frame");
             deltaTime = Time.fixedDeltaTime;
-            rawAcceleration = Input.acceleration;
-            userAcceleration = Input.gyro.userAcceleration;
-            gravity = Input.gyro.gravity;
+            time = Time.time;
+            currRawAccFrame.acceleration = Input.acceleration;
+            currRawAccFrame.userAcceleration = Input.gyro.userAcceleration;
+            currRawAccFrame.gravity = Input.gyro.gravity;
         }
         else
         {
+            if (resetCount)
+            {
+                frameIndex = 0;
+                resetCount = false;
+            }
+            initAcceleration = readGraph.frames[0].userAcceleration;
             frameIndex++;
             if (frameIndex < readGraph.frames.Count)
             {
                 time = readGraph.frames[frameIndex].dt;
                 deltaTime = readGraph.frames[frameIndex].dt - readGraph.frames[frameIndex - 1].dt;
-                rawAcceleration = readGraph.frames[frameIndex].acceleration;
-                gravity = readGraph.frames[frameIndex].gravity;
-                userAcceleration = readGraph.frames[frameIndex].userAcceleration;
+                currRawAccFrame.acceleration = readGraph.frames[frameIndex].acceleration;
+                currRawAccFrame.gravity = readGraph.frames[frameIndex].gravity;
+                currRawAccFrame.userAcceleration = readGraph.frames[frameIndex].userAcceleration;
             }
         }
+        currRawAccFrame.dt = time;
+        currKalmanFrame.dt = time;
+        currProcessAccFrame.dt = time;
+        currABerkFrame.dt = time;
 
-        rawVelocity += userAcceleration * deltaTime;
+        usedAcceleration = currRawAccFrame.userAcceleration;
+        currRawAccFrame.rawVelocity += usedAcceleration * deltaTime;
+        currRawAccFrame.rawPosition += currRawAccFrame.rawVelocity * deltaTime;
 
         //Remove init delta
-        computeInitAcceleration = rawAcceleration - gravity;
+        currProcessAccFrame.computeInitAcceleration = currRawAccFrame.acceleration - currRawAccFrame.gravity;
         //Remove Standard noise
-        computeInitAcceleration = RemoveBaseNoise(computeInitAcceleration, 0.05f);
-        computeInitVelocity += computeInitAcceleration; 
-        computeInitPosition += computeInitVelocity * deltaTime;
+        currProcessAccFrame.computeInitAcceleration = RemoveBaseNoise(currProcessAccFrame.computeInitAcceleration, 0.05f);
+        currProcessAccFrame.computeInitVelocity += currProcessAccFrame.computeInitAcceleration;
+        currProcessAccFrame.computeInitPosition += currProcessAccFrame.computeInitVelocity * deltaTime;
 
-        computeResetAcceleration = computeInitAcceleration;
-        computeResetVelocity += computeResetAcceleration;
-        if (computeResetAcceleration == Vector3.zero && computeResetVelocity != Vector3.zero)
+        currProcessAccFrame.computeResetAcceleration = currProcessAccFrame.computeInitAcceleration;
+        currProcessAccFrame.computeResetVelocity += currProcessAccFrame.computeResetAcceleration;
+        if (currProcessAccFrame.computeResetAcceleration == Vector3.zero && currProcessAccFrame.computeResetVelocity != Vector3.zero)
         {
-            computeResetVelocity = Vector3.zero;
+            currProcessAccFrame.computeResetVelocity = Vector3.zero;
             //Debug.Log("[Calculation] Reset Velocity at : " + Time.time);
         }
-        computeResetPosition += computeResetVelocity * deltaTime;
+        currProcessAccFrame.computeResetPosition += currProcessAccFrame.computeResetVelocity * deltaTime;
     }
 
     Vector3 RemoveBaseNoise(Vector3 vec, float minValue)
     {
         Vector3 computeVec = Vector3.zero;
-        if (Mathf.Abs(computeInitAcceleration.x) > minValue)
-            computeVec.x = computeInitAcceleration.x;
-        if (Mathf.Abs(computeInitAcceleration.y) > minValue)
-            computeVec.y = computeInitAcceleration.y;
-        if (Mathf.Abs(computeInitAcceleration.z) > minValue)
-            computeVec.z = computeInitAcceleration.z;
+        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.x) > minValue)
+            computeVec.x = currProcessAccFrame.computeInitAcceleration.x;
+        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.y) > minValue)
+            computeVec.y = currProcessAccFrame.computeInitAcceleration.y;
+        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.z) > minValue)
+            computeVec.z = currProcessAccFrame.computeInitAcceleration.z;
 
         return computeVec;
     }
@@ -145,8 +133,8 @@ public class CalculationFarm : MonoBehaviour
 
     public void ResetVelocity()
     {
-        rawVelocity = Vector3.zero;
-        computeInitVelocity = Vector3.zero;
-        computeResetVelocity = Vector3.zero;
+        currRawAccFrame.rawVelocity = Vector3.zero;
+        currProcessAccFrame.computeInitVelocity = Vector3.zero;
+        currProcessAccFrame.computeResetVelocity = Vector3.zero;
     }
 }

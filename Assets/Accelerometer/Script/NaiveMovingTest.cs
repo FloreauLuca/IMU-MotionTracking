@@ -20,6 +20,6 @@ public class NaiveMovingTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = calculationFarm.computeResetPosition * increaseAmplitude;
+        transform.position = calculationFarm.currProcessAccFrame.computeResetPosition * increaseAmplitude;
     }
 }

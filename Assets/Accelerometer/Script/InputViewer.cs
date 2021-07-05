@@ -15,6 +15,7 @@ public class RawAccFrame : Frame
    public Vector3 gravity;
    public Vector3 userAcceleration;
    public Vector3 rawVelocity;
+   public Vector3 rawPosition;
 }
 [Serializable]
 public class ProcessAccFrame : Frame
@@ -30,10 +31,12 @@ public class ProcessAccFrame : Frame
 public class KalmanFrame : Frame
 {
     public Vector3 kalmanRawAcc;
-    public Vector3 kalmanRawSpeed;
+    public Vector3 kalmanRawVel;
+    public Vector3 kalmanRawPos;
 
     public Vector3 kalmanComputeAcc;
-    public Vector3 kalmanComputeSpeed;
+    public Vector3 kalmanComputeVel;
+    public Vector3 kalmanComputePos;
 
     public Vector3 kalmanK;
     public Vector3 kalmanP;
@@ -155,7 +158,7 @@ public class InputViewer : MonoBehaviour
         Debug.Log("[InputViewer] Input.acceleration : " + Input.acceleration.ToString("#.000"));
         Debug.Log("[InputViewer] Input.accelerationEventCount : " + Input.accelerationEventCount);
         Debug.Log("[InputViewer] Input.gyro.gravity : " + Input.gyro.gravity.ToString("#.000"));
-        Debug.Log("[InputViewer] process acceleration : " + (calculationFarm.computeInitAcceleration).ToString("#.000"));
+        Debug.Log("[InputViewer] process acceleration : " + (calculationFarm.currProcessAccFrame.computeInitAcceleration).ToString("#.000"));
         string log = "[InputViewer] Input.accelerationEvents : ";
         for (int i = 0; i < Input.accelerationEventCount; i++)
         {
@@ -189,78 +192,44 @@ public class InputViewer : MonoBehaviour
         if (log)
             Log();
     }
-
-    private RawAccFrame rawAccFrame;
+    
     void UpdateRawGraph()
     {
-
-        rawAccFrame = new RawAccFrame();
-        rawAccFrame.dt = calculationFarm.time;
-        rawAccFrame.acceleration = calculationFarm.rawAcceleration;
-        rawAccFrame.gravity = calculationFarm.gravity;
-        rawAccFrame.userAcceleration = calculationFarm.userAcceleration;
-        rawAccFrame.rawVelocity = calculationFarm.rawVelocity;
-        rawGraph.frames.Add(rawAccFrame);
+        rawGraph.frames.Add(calculationFarm.currRawAccFrame);
     }
-
-    private ProcessAccFrame processAccFrame;
+    
     void UpdateProcessAccGraph()
     {
-        processAccFrame = new ProcessAccFrame();
-        processAccFrame.dt = calculationFarm.time;
-        processAccFrame.computeInitAcceleration = calculationFarm.computeInitAcceleration;
-        processAccFrame.computeInitVelocity = calculationFarm.computeInitVelocity;
-        processAccFrame.computeInitPosition = calculationFarm.computeInitPosition;
-        processAccFrame.computeResetAcceleration = calculationFarm.computeResetAcceleration;
-        processAccFrame.computeResetVelocity = calculationFarm.computeResetVelocity;
-        processAccFrame.computeResetPosition = calculationFarm.computeResetPosition;
-        processGraph.frames.Add(processAccFrame);
+        processGraph.frames.Add(calculationFarm.currProcessAccFrame);
     }
-
-    private KalmanFrame kalmanFrame;
+    
     void UpdateKalmanGraph()
     {
-        kalmanFrame = new KalmanFrame();
-        kalmanFrame.dt = calculationFarm.time;
-        kalmanFrame.kalmanRawAcc = calculationFarm.kalmanAcceleration;
-        kalmanFrame.kalmanRawSpeed = calculationFarm.kalmanVelocity;
-        kalmanFrame.kalmanComputeAcc = calculationFarm.kalmanComputeAcceleration;
-        kalmanFrame.kalmanComputeSpeed = calculationFarm.kalmanComputeVelocity;
-        kalmanFrame.kalmanK = calculationFarm.kalmanK;
-        kalmanFrame.kalmanP = calculationFarm.kalmanP;
-        kalmanFrame.kalmanQ = calculationFarm.kalmanQ;
-        kalmanFrame.kalmanR = calculationFarm.kalmanR;
-        kalmanGraph.frames.Add(kalmanFrame);
+        kalmanGraph.frames.Add(calculationFarm.currKalmanFrame);
 
     }
-    private ABerkFrame aBerkFrame;
     void UpdateABerkGraph()
     {
-        aBerkFrame = new ABerkFrame();
-        aBerkFrame.dt = calculationFarm.time;
-        aBerkFrame.aBerkAcceleration = calculationFarm.aBerkAcceleration;
-        aBerkFrame.aBerkVelocity = calculationFarm.aBerkVelocity;
-        aBerkFrame.aBerkPosition = calculationFarm.aBerkPosition;
-        aBerkGraph.frames.Add(aBerkFrame);
+        aBerkGraph.frames.Add(calculationFarm.currABerkFrame);
 
     }
 
     void UpdateAnalysisGraph()
     {
-        currentPhaseRawAccs.Add(rawAccFrame.userAcceleration);
-        currentPhaseComputeAccs.Add(processAccFrame.computeInitAcceleration);
+        currentPhaseRawAccs.Add(calculationFarm.currRawAccFrame.userAcceleration);
+        currentPhaseComputeAccs.Add(calculationFarm.currProcessAccFrame.computeInitAcceleration);
     }
 
     private LowValuePhase lowValuePhase = new LowValuePhase();
 
     void UpdateLowValueGraph()
     {
-        if (calculationFarm.computeResetAcceleration == Vector3.zero && lowValuePhase.startValue == 0)
+        if (calculationFarm.currProcessAccFrame.computeResetAcceleration == Vector3.zero && lowValuePhase.startValue == 0)
         {
             lowValuePhase = new LowValuePhase();
             lowValuePhase.startValue = calculationFarm.time;
         }
-        if (lowValuePhase.startValue != 0 && calculationFarm.computeResetAcceleration != Vector3.zero)
+        if (lowValuePhase.startValue != 0 && calculationFarm.currProcessAccFrame.computeResetAcceleration != Vector3.zero)
         {
             lowValuePhase.endValue = calculationFarm.time;
             lowValueGraph.phases.Add(lowValuePhase);
@@ -338,15 +307,52 @@ public class InputViewer : MonoBehaviour
 [CustomEditor(typeof(InputViewer))] //1
 public class InputGraphButton : GraphButton
 {
+    private string suffix = "";
+    private bool saveRawGraph = true;
+    private bool saveProcessGraph = true;
+    private bool saveKalmanGraph = true;
+    private bool savePhaseGraph = true;
+    private bool saveAnalysisGraph = true;
+    private bool saveLowValueGraph = true;
+    private bool saveABerkGraph = true;
+
+    private bool foldoutOpen = true;
+
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, "Graph Export");
+        if (foldoutOpen)
+        {
+            suffix = EditorGUILayout.TextField("Suffix", suffix);
+            saveRawGraph = EditorGUILayout.Toggle("saveRawGraph", saveRawGraph);
+            saveProcessGraph = EditorGUILayout.Toggle("saveProcessGraph", saveProcessGraph);
+            saveKalmanGraph = EditorGUILayout.Toggle("saveKalmanGraph", saveKalmanGraph);
+            savePhaseGraph = EditorGUILayout.Toggle("savePhaseGraph", savePhaseGraph);
+            saveAnalysisGraph = EditorGUILayout.Toggle("saveAnalysisGraph", saveAnalysisGraph);
+            saveLowValueGraph = EditorGUILayout.Toggle("saveLowValueGraph", saveLowValueGraph);
+            saveABerkGraph = EditorGUILayout.Toggle("saveABerkGraph", saveABerkGraph);
+        }
+
+        EditorGUILayout.EndFoldoutHeaderGroup();
+    }
+
     protected override void ButtonPushed()
     {
         InputViewer inputViewer = (InputViewer)target;
-        CreateJson(inputViewer.rawGraph, "Assets/Graph/rawGraph.graph");
-        CreateJson(inputViewer.processGraph, "Assets/Graph/processGraph.graph");
-        CreateJson(inputViewer.kalmanGraph, "Assets/Graph/kalmanGraph.graph");
-        CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph.graph");
-        CreateJson(inputViewer.analysisGraph, "Assets/Graph/analysisGraph.graph");
-        CreateJson(inputViewer.lowValueGraph, "Assets/Graph/lowValueGraph.graph");
-        CreateJson(inputViewer.aBerkGraph, "Assets/Graph/aBerkGraph.graph");
+        if (saveRawGraph)
+            CreateJson(inputViewer.rawGraph, "Assets/Graph/rawGraph" + suffix + ".graph");
+        if (saveProcessGraph)
+            CreateJson(inputViewer.processGraph, "Assets/Graph/processGraph" + suffix + ".graph");
+        if (saveKalmanGraph)
+            CreateJson(inputViewer.kalmanGraph, "Assets/Graph/kalmanGraph" + suffix + ".graph");
+        if (savePhaseGraph)
+            CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph" + suffix + ".graph");
+        if (saveAnalysisGraph)
+            CreateJson(inputViewer.analysisGraph, "Assets/Graph/analysisGraph" + suffix + ".graph");
+        if (saveLowValueGraph)
+            CreateJson(inputViewer.lowValueGraph, "Assets/Graph/lowValueGraph" + suffix + ".graph");
+        if (saveABerkGraph)
+            CreateJson(inputViewer.aBerkGraph, "Assets/Graph/aBerkGraph" + suffix + ".graph");
     }
 }

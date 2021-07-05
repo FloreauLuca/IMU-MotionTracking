@@ -2717,6 +2717,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1183507345}
     m_Modifications:
+    - target: {fileID: 4904219241212456184, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 49.100098
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241212456184, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -22.007996
+      objectReference: {fileID: 0}
     - target: {fileID: 4904219241270195402, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -2738,12 +2746,44 @@ PrefabInstance:
       value: -10.900024
       objectReference: {fileID: 0}
     - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: m_SizeDelta.x
       value: 1716.386
       objectReference: {fileID: 0}
     - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 908.193
+      value: 908.1917
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219241805226380, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 4904219242572646923, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2758,12 +2798,16 @@ PrefabInstance:
       value: 1.5029
       objectReference: {fileID: 0}
     - target: {fileID: 4904219242888262766, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904219242888262766, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.7514038
+      value: 0.7512207
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphColor.b
@@ -3804,27 +3848,39 @@ MonoBehaviour:
   deltaTime: 0
   time: 0
   initAcceleration: {x: 0, y: 0, z: 0}
-  rawAcceleration: {x: 0, y: 0, z: 0}
-  userAcceleration: {x: 0, y: 0, z: 0}
-  gravity: {x: 0, y: 0, z: 0}
-  rawVelocity: {x: 0, y: 0, z: 0}
-  computeInitAcceleration: {x: 0, y: 0, z: 0}
-  computeInitVelocity: {x: 0, y: 0, z: 0}
-  computeInitPosition: {x: 0, y: 0, z: 0}
-  computeResetAcceleration: {x: 0, y: 0, z: 0}
-  computeResetVelocity: {x: 0, y: 0, z: 0}
-  computeResetPosition: {x: 0, y: 0, z: 0}
-  aBerkAcceleration: {x: 0, y: 0, z: 0}
-  aBerkVelocity: {x: 0, y: 0, z: 0}
-  aBerkPosition: {x: 0, y: 0, z: 0}
-  kalmanAcceleration: {x: 0, y: 0, z: 0}
-  kalmanVelocity: {x: 0, y: 0, z: 0}
-  kalmanComputeAcceleration: {x: 0, y: 0, z: 0}
-  kalmanComputeVelocity: {x: 0, y: 0, z: 0}
-  kalmanK: {x: 0, y: 0, z: 0}
-  kalmanP: {x: 0, y: 0, z: 0}
-  kalmanQ: {x: 0, y: 0, z: 0}
-  kalmanR: {x: 0, y: 0, z: 0}
+  usedAcceleration: {x: 0, y: 0, z: 0}
+  currRawAccFrame:
+    dt: 0
+    acceleration: {x: 0, y: 0, z: 0}
+    gravity: {x: 0, y: 0, z: 0}
+    userAcceleration: {x: 0, y: 0, z: 0}
+    rawVelocity: {x: 0, y: 0, z: 0}
+    rawPosition: {x: 0, y: 0, z: 0}
+  currProcessAccFrame:
+    dt: 0
+    computeInitAcceleration: {x: 0, y: 0, z: 0}
+    computeInitVelocity: {x: 0, y: 0, z: 0}
+    computeInitPosition: {x: 0, y: 0, z: 0}
+    computeResetAcceleration: {x: 0, y: 0, z: 0}
+    computeResetVelocity: {x: 0, y: 0, z: 0}
+    computeResetPosition: {x: 0, y: 0, z: 0}
+  currABerkFrame:
+    dt: 0
+    aBerkAcceleration: {x: 0, y: 0, z: 0}
+    aBerkVelocity: {x: 0, y: 0, z: 0}
+    aBerkPosition: {x: 0, y: 0, z: 0}
+  currKalmanFrame:
+    dt: 0
+    kalmanRawAcc: {x: 0, y: 0, z: 0}
+    kalmanRawVel: {x: 0, y: 0, z: 0}
+    kalmanRawPos: {x: 0, y: 0, z: 0}
+    kalmanComputeAcc: {x: 0, y: 0, z: 0}
+    kalmanComputeVel: {x: 0, y: 0, z: 0}
+    kalmanComputePos: {x: 0, y: 0, z: 0}
+    kalmanK: {x: 0, y: 0, z: 0}
+    kalmanP: {x: 0, y: 0, z: 0}
+    kalmanQ: {x: 0, y: 0, z: 0}
+    kalmanR: {x: 0, y: 0, z: 0}
 --- !u!4 &1726255657
 Transform:
   m_ObjectHideFlags: 0
@@ -4133,7 +4189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphColor.b

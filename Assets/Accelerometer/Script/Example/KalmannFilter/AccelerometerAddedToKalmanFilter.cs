@@ -104,35 +104,35 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         KalmanFilterFloat kalman = kalmanX[kalmanIndex];
-        calculationFarm.kalmanAcceleration.x = kalman.Update(calculationFarm.rawAcceleration.x);
-        calculationFarm.kalmanAcceleration.y = kalmanY.Update(calculationFarm.rawAcceleration.y, Q, R);
-        calculationFarm.kalmanAcceleration.z = kalmanZ.Update(calculationFarm.rawAcceleration.z, Q, R);
-        calculationFarm.kalmanVelocity += calculationFarm.kalmanAcceleration * Time.deltaTime;
-        calculationFarm.kalmanK.x = kalman.K;
-        calculationFarm.kalmanK.y = kalmanY.K;
-        calculationFarm.kalmanK.z = kalmanZ.K;
-        calculationFarm.kalmanP.x = kalman.P;
-        calculationFarm.kalmanP.y = kalmanY.P;
-        calculationFarm.kalmanP.z = kalmanZ.P;
+        calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x);
+        calculationFarm.currKalmanFrame.kalmanRawAcc.y = kalmanY.Update(calculationFarm.usedAcceleration.y, Q, R);
+        calculationFarm.currKalmanFrame.kalmanRawAcc.z = kalmanZ.Update(calculationFarm.usedAcceleration.z, Q, R);
+        calculationFarm.currKalmanFrame.kalmanRawVel += calculationFarm.currKalmanFrame.kalmanRawAcc * calculationFarm.deltaTime;
+        calculationFarm.currKalmanFrame.kalmanK.x = kalman.K;
+        calculationFarm.currKalmanFrame.kalmanK.y = kalmanY.K;
+        calculationFarm.currKalmanFrame.kalmanK.z = kalmanZ.K;
+        calculationFarm.currKalmanFrame.kalmanP.x = kalman.P;
+        calculationFarm.currKalmanFrame.kalmanP.y = kalmanY.P;
+        calculationFarm.currKalmanFrame.kalmanP.z = kalmanZ.P;
         K.x = kalman.K;
         P.x = kalman.P;
-        calculationFarm.kalmanQ.x = kalman.Q;
-        calculationFarm.kalmanR.x = kalman.R;
+        calculationFarm.currKalmanFrame.kalmanQ.x = kalman.Q;
+        calculationFarm.currKalmanFrame.kalmanR.x = kalman.R;
         KalmanFilterFloat kalmanCompute = kalmanComputeX[kalmanIndex];
-        if (calculationFarm.computeResetAcceleration.x == 0)
+        if (calculationFarm.currProcessAccFrame.computeResetAcceleration.x == 0)
         {
-            calculationFarm.kalmanComputeVelocity.x = 0;
+            calculationFarm.currKalmanFrame.kalmanComputeVel.x = 0;
             kalmanCompute.Reset();
         }
         else
         {
-            calculationFarm.kalmanComputeAcceleration.x = kalmanCompute.Update(calculationFarm.computeResetAcceleration.x);
-            calculationFarm.kalmanComputeVelocity.x += calculationFarm.kalmanComputeAcceleration.x * Time.deltaTime;
+            calculationFarm.currKalmanFrame.kalmanComputeAcc.x = kalmanCompute.Update(calculationFarm.currProcessAccFrame.computeResetAcceleration.x);
+            calculationFarm.currKalmanFrame.kalmanComputeVel.x += calculationFarm.currKalmanFrame.kalmanComputeAcc.x * calculationFarm.deltaTime;
         }
-        calculationFarm.kalmanK.x = kalmanCompute.K;
+        calculationFarm.currKalmanFrame.kalmanK.x = kalmanCompute.K;
     }
 
     public void ResetFilter()
@@ -140,7 +140,7 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         kalmanX[kalmanIndex].Reset();
         kalmanY.Reset();
         kalmanZ.Reset();
-        calculationFarm.kalmanVelocity = Vector3.zero;
+        calculationFarm.currKalmanFrame.kalmanRawVel = Vector3.zero;
     }
 
     public void Switch()

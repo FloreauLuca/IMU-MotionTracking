@@ -48,7 +48,7 @@ public class DeadReckoningAB : MonoBehaviour
             return;
         }
         //SampleAcceleration();
-        acceleration = calculationFarm.rawAcceleration;
+        acceleration = calculationFarm.usedAcceleration;
         acceleration -= bias;
         RemoveWindowDiscrimination();
         DoubleIntegration();
@@ -57,16 +57,16 @@ public class DeadReckoningAB : MonoBehaviour
         prevAcc = acceleration;
         prevVel = velocity;
         prevPos = position;
-        calculationFarm.aBerkAcceleration = acceleration;
-        calculationFarm.aBerkVelocity = velocity;
-        calculationFarm.aBerkPosition = position;
+        calculationFarm.currABerkFrame.aBerkAcceleration = acceleration;
+        calculationFarm.currABerkFrame.aBerkVelocity = velocity;
+        calculationFarm.currABerkFrame.aBerkPosition = position;
     }
 
     void CalculateBias()
     {
         if (calibrationCount < CALIBRATION_COUNT)
         {
-            accelerometerReadings = calculationFarm.rawAcceleration;
+            accelerometerReadings = calculationFarm.usedAcceleration;
             accumulator += accelerometerReadings;
             calibrationCount++;
         }
@@ -83,7 +83,7 @@ public class DeadReckoningAB : MonoBehaviour
     {
         if (sampleCount < SAMPLE_COUNT)
         {
-            accelerometerReadings = calculationFarm.rawAcceleration;
+            accelerometerReadings = calculationFarm.usedAcceleration;
             accumulator += accelerometerReadings;
             sampleCount++;
         }
@@ -135,12 +135,12 @@ public class DeadReckoningAB : MonoBehaviour
         //First x-axis integration.
         velocity = prevVel +
                     (prevAcc +
-                     ((acceleration - prevAcc) / 2.0f)) * Time.deltaTime;
+                     ((acceleration - prevAcc) / 2.0f)) * calculationFarm.deltaTime;
 
         //Second x-axis integration.
         position = prevPos +
                     (prevVel +
-                     ((velocity - prevVel) / 2.0f)) * Time.deltaTime;
+                     ((velocity - prevVel) / 2.0f)) * calculationFarm.deltaTime;
     }
 
     void CheckingEndMovement()

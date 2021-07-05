@@ -289,31 +289,31 @@ public class WindowGraph : MonoBehaviour
         switch (graphTypes)
         {
             case GraphTypes.RAW_ACC:
-                dataVec = calculationFarm.userAcceleration;
+                dataVec = calculationFarm.usedAcceleration;
                 break;
             case GraphTypes.KALMAN_ACC:
-                dataVec = calculationFarm.kalmanAcceleration;
+                dataVec = calculationFarm.currKalmanFrame.kalmanRawAcc;
                 break;
             case GraphTypes.COMPUTE_ACC:
-                dataVec = calculationFarm.computeResetAcceleration;
+                dataVec = calculationFarm.currProcessAccFrame.computeResetAcceleration;
                 break;
             case GraphTypes.RAW_VEL:
-                dataVec = calculationFarm.rawVelocity;
+                dataVec = calculationFarm.currRawAccFrame.rawVelocity;
                 break;
             case GraphTypes.KALMAN_VEL:
-                dataVec = calculationFarm.kalmanVelocity;
+                dataVec = calculationFarm.currKalmanFrame.kalmanRawVel;
                 break;
             case GraphTypes.COMPUTE_VEL:
-                dataVec = calculationFarm.computeResetVelocity;
+                dataVec = calculationFarm.currProcessAccFrame.computeResetVelocity;
                 break;
             case GraphTypes.RAW_POS:
-                dataVec = calculationFarm.rawVelocity;
+                dataVec = calculationFarm.currRawAccFrame.rawPosition;
                 break;
             case GraphTypes.KALMAN_POS:
-                dataVec = calculationFarm.kalmanComputeAcceleration;
+                dataVec = calculationFarm.currKalmanFrame.kalmanRawPos;
                 break;
             case GraphTypes.COMPUTE_POS:
-                dataVec = calculationFarm.computeResetPosition;
+                dataVec = calculationFarm.currProcessAccFrame.computeResetPosition;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
