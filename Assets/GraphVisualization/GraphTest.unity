@@ -262,8 +262,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a40aabfbbdc5f53459494a8a3864bbaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useRunTimeData: 0
+  fileName: rawGraph-05-07
+  deltaTime: 0
+  time: 0
   initAcceleration: {x: 0, y: 0, z: 0}
   rawAcceleration: {x: 0, y: 0, z: 0}
+  userAcceleration: {x: 0, y: 0, z: 0}
+  gravity: {x: 0, y: 0, z: 0}
   rawVelocity: {x: 0, y: 0, z: 0}
   computeInitAcceleration: {x: 0, y: 0, z: 0}
   computeInitVelocity: {x: 0, y: 0, z: 0}

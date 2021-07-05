@@ -98,7 +98,7 @@ function generatedCheckBoxes(json) {
 
 function updateVisibility() {
     graphNames.forEach(key => {
-        console.log(key);
+        // console.log(key);
         var checked = addCheckBox(key, "checkboxContainer").checked;
         var axis = "X";
         var checkedAxis = addCheckBox(axis, "checkboxAxisContainer").checked;
@@ -118,10 +118,12 @@ function updateVisibility() {
             var obj = data.find(data_ => data_.name == key + axis);
             obj.visible = checked && checkedAxis;
         }
+        console.log(key);
         if (data.find(data_ => data_.name == key) != undefined) {
+            console.log("find");
             var obj = data.find(data_ => data_.name == key);
             obj.visible = checked;
-
+            console.log(obj.visible);
         }
     });
     chart.render();

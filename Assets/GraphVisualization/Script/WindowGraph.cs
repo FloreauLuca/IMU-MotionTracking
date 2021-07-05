@@ -25,7 +25,6 @@ public struct GraphFrame
     public void SetLine(GameObject line)
     {
         this.line = line;
-
     }
 
     public void MoveDot(Vector2 newPosition)
@@ -133,7 +132,7 @@ public class WindowGraph : MonoBehaviour
 
         foreach (var frame in frames)
         {
-            if (Mathf.Abs(frame.value) > yMaxDelta/2) yMaxDelta = Mathf.Abs(frame.value)*2;
+            if (Mathf.Abs(frame.value) > yMaxDelta/2) yMaxDelta = Mathf.Abs(frame.value)*2.25f;
         }
 
         float yMinimum = -yMaxDelta / 2;
@@ -290,7 +289,7 @@ public class WindowGraph : MonoBehaviour
         switch (graphTypes)
         {
             case GraphTypes.RAW_ACC:
-                dataVec = calculationFarm.rawAcceleration;
+                dataVec = calculationFarm.userAcceleration;
                 break;
             case GraphTypes.KALMAN_ACC:
                 dataVec = calculationFarm.kalmanAcceleration;

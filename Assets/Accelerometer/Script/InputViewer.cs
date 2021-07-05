@@ -195,10 +195,10 @@ public class InputViewer : MonoBehaviour
     {
 
         rawAccFrame = new RawAccFrame();
-        rawAccFrame.dt = Time.time;
-        rawAccFrame.acceleration = Input.acceleration;
-        rawAccFrame.gravity = Input.gyro.gravity;
-        rawAccFrame.userAcceleration = Input.gyro.userAcceleration;
+        rawAccFrame.dt = calculationFarm.time;
+        rawAccFrame.acceleration = calculationFarm.rawAcceleration;
+        rawAccFrame.gravity = calculationFarm.gravity;
+        rawAccFrame.userAcceleration = calculationFarm.userAcceleration;
         rawAccFrame.rawVelocity = calculationFarm.rawVelocity;
         rawGraph.frames.Add(rawAccFrame);
     }
@@ -207,7 +207,7 @@ public class InputViewer : MonoBehaviour
     void UpdateProcessAccGraph()
     {
         processAccFrame = new ProcessAccFrame();
-        processAccFrame.dt = Time.time;
+        processAccFrame.dt = calculationFarm.time;
         processAccFrame.computeInitAcceleration = calculationFarm.computeInitAcceleration;
         processAccFrame.computeInitVelocity = calculationFarm.computeInitVelocity;
         processAccFrame.computeInitPosition = calculationFarm.computeInitPosition;
@@ -221,7 +221,7 @@ public class InputViewer : MonoBehaviour
     void UpdateKalmanGraph()
     {
         kalmanFrame = new KalmanFrame();
-        kalmanFrame.dt = Time.time;
+        kalmanFrame.dt = calculationFarm.time;
         kalmanFrame.kalmanRawAcc = calculationFarm.kalmanAcceleration;
         kalmanFrame.kalmanRawSpeed = calculationFarm.kalmanVelocity;
         kalmanFrame.kalmanComputeAcc = calculationFarm.kalmanComputeAcceleration;
@@ -237,7 +237,7 @@ public class InputViewer : MonoBehaviour
     void UpdateABerkGraph()
     {
         aBerkFrame = new ABerkFrame();
-        aBerkFrame.dt = Time.time;
+        aBerkFrame.dt = calculationFarm.time;
         aBerkFrame.aBerkAcceleration = calculationFarm.aBerkAcceleration;
         aBerkFrame.aBerkVelocity = calculationFarm.aBerkVelocity;
         aBerkFrame.aBerkPosition = calculationFarm.aBerkPosition;
@@ -258,11 +258,11 @@ public class InputViewer : MonoBehaviour
         if (calculationFarm.computeResetAcceleration == Vector3.zero && lowValuePhase.startValue == 0)
         {
             lowValuePhase = new LowValuePhase();
-            lowValuePhase.startValue = Time.time;
+            lowValuePhase.startValue = calculationFarm.time;
         }
         if (lowValuePhase.startValue != 0 && calculationFarm.computeResetAcceleration != Vector3.zero)
         {
-            lowValuePhase.endValue = Time.time;
+            lowValuePhase.endValue = calculationFarm.time;
             lowValueGraph.phases.Add(lowValuePhase);
             lowValuePhase = new LowValuePhase();
         }
@@ -307,7 +307,7 @@ public class InputViewer : MonoBehaviour
             currentPhase = new Phase();
             currentPhaseRawAccs = new List<Vector3>();
             currentPhaseComputeAccs = new List<Vector3>();
-            currentPhase.startValue = Time.time;
+            currentPhase.startValue = calculationFarm.time;
             currentPhase.phase = phase;
         }
         else
@@ -316,7 +316,7 @@ public class InputViewer : MonoBehaviour
             currentPhase = new Phase();
             currentPhaseRawAccs = new List<Vector3>();
             currentPhaseComputeAccs = new List<Vector3>();
-            currentPhase.startValue = Time.time;
+            currentPhase.startValue = calculationFarm.time;
             currentPhase.phase = phase;
         }
     }
@@ -325,7 +325,7 @@ public class InputViewer : MonoBehaviour
     {
         if (currentPhase.startValue != 0)
         {
-            currentPhase.endValue = Time.time;
+            currentPhase.endValue = calculationFarm.time;
             EnterAnalysisPhase();
             phaseGraph.phases.Add(currentPhase);
             currentPhase = new Phase();
