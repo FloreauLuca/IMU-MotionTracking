@@ -1,3 +1,10 @@
 {
-    "phases": []
+    "phases": [
+        {
+            "startValue": 1.8199999332427979,
+            "endValue": 4.659999847412109,
+            "phase": 0,
+            "valueCount": 66
+        }
+    ]
 }

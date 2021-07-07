@@ -59,6 +59,8 @@ public class CalculationFarm : MonoBehaviour
         
         if (useRunTimeData)
         {
+            deltaTime = Time.fixedDeltaTime;
+            time = Time.time;
             //Wait acceleration initialisation
             if (Input.acceleration == Vector3.zero) return;
             if (Input.acceleration != Vector3.zero && initAcceleration == Vector3.zero)
@@ -67,8 +69,6 @@ public class CalculationFarm : MonoBehaviour
             }
             if (Input.accelerationEventCount != 1)
                 Debug.LogError("Multiple Acceleration during the last frame");
-            deltaTime = Time.fixedDeltaTime;
-            time = Time.time;
             currRawAccFrame.acceleration = Input.acceleration;
             currRawAccFrame.userAcceleration = Input.gyro.userAcceleration;
             currRawAccFrame.gravity = Input.gyro.gravity;
@@ -91,6 +91,12 @@ public class CalculationFarm : MonoBehaviour
                 currRawAccFrame.userAcceleration = readGraph.frames[frameIndex].userAcceleration;
             }
         }
+
+        currRawAccFrame.dt = 0;
+        currKalmanFrame.dt = 0;
+        currProcessAccFrame.dt = 0;
+        currABerkFrame.dt = 0;
+
         currRawAccFrame.dt = time;
         currKalmanFrame.dt = time;
         currProcessAccFrame.dt = time;

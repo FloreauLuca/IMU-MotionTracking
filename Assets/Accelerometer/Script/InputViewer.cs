@@ -9,17 +9,19 @@ using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
 [Serializable]
-public class RawAccFrame : Frame
+public struct RawAccFrame
 {
-   public Vector3 acceleration;
+    public float dt;
+    public Vector3 acceleration;
    public Vector3 gravity;
    public Vector3 userAcceleration;
    public Vector3 rawVelocity;
    public Vector3 rawPosition;
 }
 [Serializable]
-public class ProcessAccFrame : Frame
+public struct ProcessAccFrame
 {
+    public float dt;
     public Vector3 computeInitAcceleration;
     public Vector3 computeInitVelocity;
     public Vector3 computeInitPosition;
@@ -28,8 +30,9 @@ public class ProcessAccFrame : Frame
     public Vector3 computeResetPosition;
 }
 [Serializable]
-public class KalmanFrame : Frame
+public struct KalmanFrame
 {
+    public float dt;
     public Vector3 kalmanRawAcc;
     public Vector3 kalmanRawVel;
     public Vector3 kalmanRawPos;
@@ -45,20 +48,22 @@ public class KalmanFrame : Frame
     public Vector3 kalmanR;
 }
 [Serializable]
-public class AnalysisFrame : Frame
+public struct AnalysisFrame
 {
+    public float dt;
     public int rawAccCount;
     public int computeAccCount;
     public Vector3 sumRawAcc;
     public Vector3 averageRawAcc;
-    public Vector3[] boxRawAcc = new Vector3[5];
+    public Vector3[] boxRawAcc;
     public Vector3 sumComputeAcc;
     public Vector3 averageComputeAcc;
-    public Vector3[] boxComputeAcc = new Vector3[5];
+    public Vector3[] boxComputeAcc;
 }
 [Serializable]
-public class ABerkFrame : Frame
+public struct ABerkFrame
 {
+    public float dt;
     public Vector3 aBerkAcceleration;
     public Vector3 aBerkVelocity;
     public Vector3 aBerkPosition;
@@ -196,6 +201,7 @@ public class InputViewer : MonoBehaviour
     void UpdateRawGraph()
     {
         rawGraph.frames.Add(calculationFarm.currRawAccFrame);
+        Debug.Log(rawGraph.frames[0].dt + "; " + rawGraph.frames[0].acceleration);
     }
     
     void UpdateProcessAccGraph()
