@@ -5,12 +5,6 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-[Serializable]
-public class Frame
-{
-    public float dt;
-}
-
 public class GraphButton : Editor
 {
     public override void OnInspectorGUI()

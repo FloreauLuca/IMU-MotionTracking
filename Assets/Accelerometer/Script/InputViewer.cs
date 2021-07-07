@@ -201,7 +201,6 @@ public class InputViewer : MonoBehaviour
     void UpdateRawGraph()
     {
         rawGraph.frames.Add(calculationFarm.currRawAccFrame);
-        Debug.Log(rawGraph.frames[0].dt + "; " + rawGraph.frames[0].acceleration);
     }
     
     void UpdateProcessAccGraph()

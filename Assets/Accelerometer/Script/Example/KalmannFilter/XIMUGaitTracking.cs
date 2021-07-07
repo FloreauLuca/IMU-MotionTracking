@@ -7,8 +7,9 @@ using UnityEngine;
 //https://github.com/xioTechnologies/Gait-Tracking-With-x-IMU/blob/master/Gait%20Tracking%20With%20x-IMU/Script.m
 
 [Serializable]
-public class XIMUGaitFrame : Frame
+public class XIMUGaitFrame
 {
+    public float dt;
     public float deltaTime;
 }
 

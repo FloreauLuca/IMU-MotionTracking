@@ -32,13 +32,13 @@ public struct GraphFrame
         dot.GetComponent<RectTransform>().anchoredPosition = newPosition;
     }
 
-    public void UpdateLine(Vector2 dotPositionA, Vector2 dotPositionB)
+    public void UpdateLine(Vector2 dotPositionA, Vector2 dotPositionB, float lineSize)
     {
         if (!line) return;
         RectTransform rectTransform = line.GetComponent<RectTransform>();
         Vector2 dir = (dotPositionB - dotPositionA).normalized;
         float distance = Vector2.Distance(dotPositionA, dotPositionB);
-        rectTransform.sizeDelta = new Vector2(distance, 3);
+        rectTransform.sizeDelta = new Vector2(distance, lineSize);
         rectTransform.anchoredPosition = dotPositionA + dir * distance * 0.5f;
         rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
     }
@@ -75,6 +75,7 @@ public class WindowGraph : MonoBehaviour
     [SerializeField] private Sprite circleSprite;
     [SerializeField] private Color graphColor;
     [SerializeField] private bool displayDot;
+    [SerializeField] private float lineSize = 5.0f;
 
     [Header("Transform")]
     [SerializeField] private RectTransform graphContainer;
@@ -146,9 +147,16 @@ public class WindowGraph : MonoBehaviour
             if (frames[i].dt < xMaximum - timeDelta)
             {
                 if (frames[i].dot)
+                {
                     frames[i].dot.SetActive(false);
+                    Destroy(frames[i].dot);
+                }
+
                 if (frames[i].line)
+                {
                     frames[i].line.SetActive(false);
+                    Destroy(frames[i].line);
+                }
                 continue;
             }
             float xPosition = ((frames[i].dt - xMinimum )/ timeDelta) * graphSize.x;
@@ -173,7 +181,7 @@ public class WindowGraph : MonoBehaviour
                 if (lastCircleGameObject != null)
                 {
                     frames[i].UpdateLine(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition,
-                        frames[i].dot.GetComponent<RectTransform>().anchoredPosition);
+                        frames[i].dot.GetComponent<RectTransform>().anchoredPosition, lineSize);
                 }
 
                 lastCircleGameObject = frames[i].dot;
@@ -207,7 +215,7 @@ public class WindowGraph : MonoBehaviour
         float distance = Vector2.Distance(dotPositionA, dotPositionB);
         rectTransform.anchorMin = new Vector2(0, 0);
         rectTransform.anchorMax = new Vector2(0, 0);
-        rectTransform.sizeDelta = new Vector2(distance, 5);
+        rectTransform.sizeDelta = new Vector2(distance, lineSize);
         rectTransform.anchoredPosition = dotPositionA + dir * distance * 0.5f;
         rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
         return gameObject;
@@ -323,13 +331,10 @@ public class WindowGraph : MonoBehaviour
         {
             case AxisTypes.X:
                 return dataVec.x;
-                break;
             case AxisTypes.Y:
                 return dataVec.y;
-                break;
             case AxisTypes.Z:
                 return dataVec.z;
-                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
