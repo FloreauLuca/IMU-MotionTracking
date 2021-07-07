@@ -84,6 +84,9 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
     };
     private KalmanFilterFloat kalmanY;
     private KalmanFilterFloat kalmanZ;
+
+    private FusionKalmanFilter ekf = new FusionKalmanFilter();
+
     private CalculationFarm calculationFarm;
 
     [SerializeField] private float Q = 0.001f;
@@ -101,6 +104,8 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         //kalmanX = new KalmanFilterFloat(Q, R);
         kalmanY = new KalmanFilterFloat(Q, R);
         kalmanZ = new KalmanFilterFloat(Q, R);
+
+        ekf.Start();
     }
 
     // Update is called once per frame
@@ -133,6 +138,8 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
             calculationFarm.currKalmanFrame.kalmanComputeVel.x += calculationFarm.currKalmanFrame.kalmanComputeAcc.x * calculationFarm.deltaTime;
         }
         calculationFarm.currKalmanFrame.kalmanK.x = kalmanCompute.K;
+
+        calculationFarm.currKalmanFrame.ekfRawAcc = ekf.ProcessMesurement(calculationFarm.usedAcceleration, calculationFarm.time);
     }
 
     public void ResetFilter()

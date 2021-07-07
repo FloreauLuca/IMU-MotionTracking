@@ -41,6 +41,10 @@ public struct KalmanFrame
     public Vector3 kalmanComputeVel;
     public Vector3 kalmanComputePos;
 
+    public Vector3 ekfRawAcc;
+    public Vector3 ekfRawVel;
+    public Vector3 ekfRawPos;
+
     public Vector3 kalmanK;
     public Vector3 kalmanP;
 

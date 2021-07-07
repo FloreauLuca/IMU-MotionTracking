@@ -56,6 +56,7 @@ public class WindowGraph : MonoBehaviour
         RAW_ACC,
         KALMAN_ACC,
         COMPUTE_ACC,
+        EKF_ACC,
         RAW_VEL,
         KALMAN_VEL,
         COMPUTE_VEL,
@@ -304,6 +305,9 @@ public class WindowGraph : MonoBehaviour
                 break;
             case GraphTypes.COMPUTE_ACC:
                 dataVec = calculationFarm.currProcessAccFrame.computeResetAcceleration;
+                break;
+            case GraphTypes.EKF_ACC:
+                dataVec = calculationFarm.currKalmanFrame.kalmanComputeAcc;
                 break;
             case GraphTypes.RAW_VEL:
                 dataVec = calculationFarm.currRawAccFrame.rawVelocity;
