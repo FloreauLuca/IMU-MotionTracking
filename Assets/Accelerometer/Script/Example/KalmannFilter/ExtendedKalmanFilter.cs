@@ -100,13 +100,13 @@ public class ExtendedKalmanFilter
         Matrix PHt = P * Ht;
 
         Matrix S = H * PHt + R;
-        Matrix K = PHt * S.Invert();
+        //Matrix K = PHt * S.Invert();
 
         //Update State
-        x = x + (K * y);
+        //x = x + (K * y);
         //Update covariance matrix
         int x_size = x.rows;
         Matrix I = Matrix.IdentityMatrix(x_size, x_size);
-        P = (I - K * H) * P;
+        //P = (I - K * H) * P;
     }
 }

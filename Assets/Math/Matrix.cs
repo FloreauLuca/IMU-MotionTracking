@@ -180,7 +180,9 @@ public class Matrix
 
     public Matrix Invert()                                   // Function returns the inverted matrix
     {
-        if (L == null) MakeLU();
+        if (L == null)
+            L = IdentityMatrix(rows, cols);
+            //MakeLU();
 
         Matrix inv = new Matrix(rows, cols);
 
@@ -566,7 +568,7 @@ public class Matrix
     }
     private static Matrix Add(Matrix m1, Matrix m2)         // Sčítání matic
     {
-        if (m1.rows != m2.rows || m1.cols != m2.cols) 
+        if (m1.rows > m2.rows || m1.cols > m2.cols) 
             throw new MException("Matrices must have the same dimensions!");
         Matrix r = new Matrix(m1.rows, m1.cols);
         for (int i = 0; i < r.rows; i++)

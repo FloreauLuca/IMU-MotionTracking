@@ -851,7 +851,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphColor.b
@@ -2795,7 +2795,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphColor.b
@@ -3044,7 +3044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0.00012207}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1193096881
@@ -3865,6 +3865,9 @@ MonoBehaviour:
     kalmanComputeAcc: {x: 0, y: 0, z: 0}
     kalmanComputeVel: {x: 0, y: 0, z: 0}
     kalmanComputePos: {x: 0, y: 0, z: 0}
+    ekfRawAcc: {x: 0, y: 0, z: 0}
+    ekfRawVel: {x: 0, y: 0, z: 0}
+    ekfRawPos: {x: 0, y: 0, z: 0}
     kalmanK: {x: 0, y: 0, z: 0}
     kalmanP: {x: 0, y: 0, z: 0}
     kalmanQ: {x: 0, y: 0, z: 0}
@@ -4129,7 +4132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
-      value: 4
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphColor.b

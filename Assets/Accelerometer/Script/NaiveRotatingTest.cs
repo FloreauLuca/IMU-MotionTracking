@@ -23,7 +23,7 @@ public class NaiveRotatingTest : MonoBehaviour
         transform.rotation = ConvertRightHandedToLeftHandedQuaternion(Quaternion.Inverse(_origin) * Input.gyro.attitude);
     }
 
-    private Quaternion ConvertRightHandedToLeftHandedQuaternion(Quaternion rightHandedQuaternion)
+    public static Quaternion ConvertRightHandedToLeftHandedQuaternion(Quaternion rightHandedQuaternion)
     {
         return new Quaternion(-rightHandedQuaternion.x,
             -rightHandedQuaternion.z,
