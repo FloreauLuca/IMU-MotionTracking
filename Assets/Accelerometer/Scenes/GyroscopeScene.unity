@@ -357,8 +357,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2db0ee0ce0b00c4eb89580e035c7a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testNb: 1
-  acc: {x: 0, y: 0, z: 0}
+  testNb: 7
+  definedAcc: {x: 0, y: 0, z: 0}
 --- !u!96 &794992440
 TrailRenderer:
   serializedVersion: 2

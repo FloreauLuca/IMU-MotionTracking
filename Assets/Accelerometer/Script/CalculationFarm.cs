@@ -20,6 +20,8 @@ public class CalculationFarm : MonoBehaviour
 
     public RawAccFrame currRawAccFrame;
 
+    public GlobalAccFrame currGlobalAccFrame;
+
     public ProcessAccFrame currProcessAccFrame;
 
     public ABerkFrame currABerkFrame;
@@ -91,20 +93,19 @@ public class CalculationFarm : MonoBehaviour
                 currRawAccFrame.userAcceleration = readGraph.frames[frameIndex].userAcceleration;
             }
         }
-
-        currRawAccFrame.dt = 0;
-        currKalmanFrame.dt = 0;
-        currProcessAccFrame.dt = 0;
-        currABerkFrame.dt = 0;
-
+        
         currRawAccFrame.dt = time;
+        currGlobalAccFrame.dt = time;
         currKalmanFrame.dt = time;
         currProcessAccFrame.dt = time;
         currABerkFrame.dt = time;
 
-        usedAcceleration = currRawAccFrame.userAcceleration;
-        currRawAccFrame.rawVelocity += usedAcceleration * deltaTime;
+        usedAcceleration = currGlobalAccFrame.globalAcc;
+        currRawAccFrame.rawVelocity += currRawAccFrame.userAcceleration * deltaTime;
         currRawAccFrame.rawPosition += currRawAccFrame.rawVelocity * deltaTime;
+
+        currGlobalAccFrame.globalVelocity += currGlobalAccFrame.globalAcc * deltaTime;
+        currGlobalAccFrame.globalPos += currGlobalAccFrame.globalVelocity * deltaTime;
 
         //Remove init delta
         currProcessAccFrame.computeInitAcceleration = currRawAccFrame.acceleration - currRawAccFrame.gravity;

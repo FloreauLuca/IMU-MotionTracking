@@ -18,6 +18,16 @@ public struct RawAccFrame
    public Vector3 rawVelocity;
    public Vector3 rawPosition;
 }
+
+[Serializable]
+public struct GlobalAccFrame
+{
+    public float dt;
+    public Vector3 globalAcc;
+    public Vector3 globalVelocity;
+    public Vector3 globalPos;
+}
+
 [Serializable]
 public struct ProcessAccFrame
 {
@@ -80,6 +90,12 @@ public class RawGraph
 }
 
 [Serializable]
+public class GlobalGraph
+{
+    public List<GlobalAccFrame> frames = new List<GlobalAccFrame>();
+}
+
+[Serializable]
 public class ProcessGraph
 {
     public List<ProcessAccFrame> frames = new List<ProcessAccFrame>();
@@ -139,6 +155,7 @@ public class InputViewer : MonoBehaviour
     private CalculationFarm calculationFarm;
 
     public RawGraph rawGraph;
+    public GlobalGraph globalGraph;
     public ProcessGraph processGraph;
     public KalmanGraph kalmanGraph;
     public AnalysisGraph analysisGraph;
@@ -192,6 +209,7 @@ public class InputViewer : MonoBehaviour
     {
         if (Input.acceleration == Vector3.zero) return;
         UpdateRawGraph();
+        globalGraph.frames.Add(calculationFarm.currGlobalAccFrame);
         UpdateProcessAccGraph();
         UpdateKalmanGraph();
         UpdateABerkGraph();
@@ -304,7 +322,7 @@ public class InputViewer : MonoBehaviour
         if (currentPhase.startValue != 0)
         {
             currentPhase.endValue = calculationFarm.time;
-            EnterAnalysisPhase();
+            //EnterAnalysisPhase();
             phaseGraph.phases.Add(currentPhase);
             currentPhase = new Phase();
             currentAnalysisFrame = new AnalysisFrame();
@@ -316,6 +334,7 @@ public class InputViewer : MonoBehaviour
 [CustomEditor(typeof(InputViewer))] //1
 public class InputGraphButton : GraphButton
 {
+    private string prefix = "";
     private string suffix = "";
     private bool saveRawGraph = true;
     private bool saveProcessGraph = true;
@@ -324,6 +343,7 @@ public class InputGraphButton : GraphButton
     private bool saveAnalysisGraph = true;
     private bool saveLowValueGraph = true;
     private bool saveABerkGraph = true;
+    private bool saveGlobalGraph = true;
 
     private bool foldoutOpen = true;
 
@@ -333,6 +353,7 @@ public class InputGraphButton : GraphButton
         foldoutOpen = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutOpen, "Graph Export");
         if (foldoutOpen)
         {
+            prefix = EditorGUILayout.TextField("Prefix", prefix);
             suffix = EditorGUILayout.TextField("Suffix", suffix);
             saveRawGraph = EditorGUILayout.Toggle("saveRawGraph", saveRawGraph);
             saveProcessGraph = EditorGUILayout.Toggle("saveProcessGraph", saveProcessGraph);
@@ -341,6 +362,7 @@ public class InputGraphButton : GraphButton
             saveAnalysisGraph = EditorGUILayout.Toggle("saveAnalysisGraph", saveAnalysisGraph);
             saveLowValueGraph = EditorGUILayout.Toggle("saveLowValueGraph", saveLowValueGraph);
             saveABerkGraph = EditorGUILayout.Toggle("saveABerkGraph", saveABerkGraph);
+            saveGlobalGraph = EditorGUILayout.Toggle("saveGlobalGraph", saveGlobalGraph);
         }
 
         EditorGUILayout.EndFoldoutHeaderGroup();
@@ -350,18 +372,20 @@ public class InputGraphButton : GraphButton
     {
         InputViewer inputViewer = (InputViewer)target;
         if (saveRawGraph)
-            CreateJson(inputViewer.rawGraph, "Assets/Graph/rawGraph" + suffix + ".graph");
+            CreateJson(inputViewer.rawGraph, "Assets/Graph/" + prefix + "rawGraph" + suffix + ".graph");
         if (saveProcessGraph)
-            CreateJson(inputViewer.processGraph, "Assets/Graph/processGraph" + suffix + ".graph");
+            CreateJson(inputViewer.processGraph, "Assets/Graph/" + prefix + "processGraph" + suffix + ".graph");
         if (saveKalmanGraph)
-            CreateJson(inputViewer.kalmanGraph, "Assets/Graph/kalmanGraph" + suffix + ".graph");
+            CreateJson(inputViewer.kalmanGraph, "Assets/Graph/" + prefix + "kalmanGraph" + suffix + ".graph");
         if (savePhaseGraph)
-            CreateJson(inputViewer.phaseGraph, "Assets/Graph/phaseGraph" + suffix + ".graph");
+            CreateJson(inputViewer.phaseGraph, "Assets/Graph/" + prefix + "phaseGraph" + suffix + ".graph");
         if (saveAnalysisGraph)
-            CreateJson(inputViewer.analysisGraph, "Assets/Graph/analysisGraph" + suffix + ".graph");
+            CreateJson(inputViewer.analysisGraph, "Assets/Graph/" + prefix + "analysisGraph" + suffix + ".graph");
         if (saveLowValueGraph)
-            CreateJson(inputViewer.lowValueGraph, "Assets/Graph/lowValueGraph" + suffix + ".graph");
+            CreateJson(inputViewer.lowValueGraph, "Assets/Graph/" + prefix + "lowValueGraph" + suffix + ".graph");
         if (saveABerkGraph)
-            CreateJson(inputViewer.aBerkGraph, "Assets/Graph/aBerkGraph" + suffix + ".graph");
+            CreateJson(inputViewer.aBerkGraph, "Assets/Graph/" + prefix + "aBerkGraph" + suffix + ".graph");
+        if (saveGlobalGraph)
+            CreateJson(inputViewer.globalGraph, "Assets/Graph/" + prefix + "globalGraph" + suffix + ".graph");
     }
 }

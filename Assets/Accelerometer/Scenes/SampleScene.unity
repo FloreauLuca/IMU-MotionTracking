@@ -185,6 +185,51 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 025fd89f3c5d1da4cbc4c5cec8363cef, type: 3}
+--- !u!1 &157788598
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 157788600}
+  - component: {fileID: 157788599}
+  m_Layer: 0
+  m_Name: LocalToGlobal
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &157788599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157788598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2db0ee0ce0b00c4eb89580e035c7a92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testNb: 0
+  definedAcc: {x: 0, y: 0, z: 0}
+--- !u!4 &157788600
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157788598}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &270567840
 GameObject:
   m_ObjectHideFlags: 0
@@ -2198,6 +2243,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rawGraph:
     frames: []
+  globalGraph:
+    frames: []
   processGraph:
     frames: []
   kalmanGraph:
@@ -3844,6 +3891,11 @@ MonoBehaviour:
     userAcceleration: {x: 0, y: 0, z: 0}
     rawVelocity: {x: 0, y: 0, z: 0}
     rawPosition: {x: 0, y: 0, z: 0}
+  currGlobalAccFrame:
+    dt: 0
+    globalAcc: {x: 0, y: 0, z: 0}
+    globalVelocity: {x: 0, y: 0, z: 0}
+    globalPos: {x: 0, y: 0, z: 0}
   currProcessAccFrame:
     dt: 0
     computeInitAcceleration: {x: 0, y: 0, z: 0}
