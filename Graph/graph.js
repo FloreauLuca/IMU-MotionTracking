@@ -131,6 +131,8 @@ function updateVisibility() {
 }
 
 function writeToDataPoint(json) {
+	var timeMult = parseFloat(document.getElementById("timeMult").value);
+	var timeAdd = parseFloat(document.getElementById("timeAdd").value);
     graphNames.forEach(key => {
         console.log(key);
         var dataPoints;
@@ -141,15 +143,15 @@ function writeToDataPoint(json) {
             dataPoints["Z"] = [];
             for (var i = 0; i < json.frames.length; i++) {
                 dataPoints["X"].push({
-                    x: json.frames[i].dt,
+                    x: (json.frames[i].time + timeAdd) * timeMult,
                     y: json.frames[i][key].x
                 });
                 dataPoints["Y"].push({
-                    x: json.frames[i].dt,
+                    x: (json.frames[i].time + timeAdd) * timeMult,
                     y: json.frames[i][key].y
                 });
                 dataPoints["Z"].push({
-                    x: json.frames[i].dt,
+                    x: (json.frames[i].time + timeAdd) * timeMult,
                     y: json.frames[i][key].z
                 });
             }
@@ -182,15 +184,15 @@ function writeToDataPoint(json) {
             dataPoints["Z"] = [];
             for (var i = 0; i < json.frames.length; i++) {
                 dataPoints["X"].push({
-                    label: json.frames[i].dt,
+                    label: (json.frames[i].time + timeAdd) * timeMult,
                     y: []
                 });
                 dataPoints["Y"].push({
-                    label: json.frames[i].dt,
+                    label: (json.frames[i].time + timeAdd) * timeMult,
                     y: []
                 });
                 dataPoints["Z"].push({
-                    label: json.frames[i].dt,
+                    label: (json.frames[i].time + timeAdd) * timeMult,
                     y: []
                 });
                 for (var j = 0; j < json.frames[i][key].length; j++) {
@@ -225,8 +227,9 @@ function writeToDataPoint(json) {
         } else {
             dataPoints = [];
             for (var i = 0; i < json.frames.length; i++) {
+				var time = ((json.frames[i].time + timeAdd) * timeMult);
                 dataPoints.push({
-                    x: json.frames[i].dt,
+                    x: time,
                     y: json.frames[i][key]
                 });
             }
@@ -250,23 +253,41 @@ function writeToDataPoint(json) {
 }
 
 function drawPhase() {
+	var timeMult = parseFloat(document.getElementById("timeMult").value);
+	var timeAdd = parseFloat(document.getElementById("timeAdd").value);
     stripLines = [];
     var text = document.getElementById("data").value;
     var json = JSON.parse(text);
     for (var i = 0; i < json.phases.length; i++) {
-        var phase =
-        {
-            startValue: json.phases[i].startValue,
-            endValue: json.phases[i].endValue,
-            opacity: .3,
-            color: phaseColor[i % 6],
-            label: json.phases[i].phase + ":" + json.phases[i].valueCount,
-            labelFontColor: "black",
-            labelFontSize: "18",
-            labelFontWeight: "bold"
-        };
-        console.log(stripLines.length);
-        stripLines.push(phase);
+		if (isObject(json.phases[i]))
+		{			
+			var phase =
+			{
+				startValue: (json.phases[i].startValue + timeAdd) * timeMult,
+				endValue: (json.phases[i].endValue + timeAdd) * timeMult,
+				opacity: .3,
+				color: phaseColor[i % 6],
+				label: json.phases[i].phase + ":" + json.phases[i].valueCount,
+				labelFontColor: "black",
+				labelFontSize: "18",
+				labelFontWeight: "bold"
+			};
+			console.log(phase);
+			stripLines.push(phase);
+		} else if (i < json.phases.length-1) {
+			var phase =
+			{
+				startValue: (json.phases[i] + timeAdd) * timeMult,
+				endValue: (json.phases[i+1] + timeAdd) * timeMult,
+				opacity: .3,
+				color: phaseColor[i % 6],
+				labelFontColor: "black",
+				labelFontSize: "18",
+				labelFontWeight: "bold"
+			};
+			console.log(phase);
+			stripLines.push(phase);
+		}
     }
     chart.options.axisX.stripLines = stripLines;
     chart.render();

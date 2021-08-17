@@ -91,6 +91,7 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
 
     [SerializeField] private float Q = 0.001f;
     [SerializeField] private float R = 0.01f;
+    [SerializeField] private bool useKalmanIndex = false;
 
     private Vector3 K;
     private Vector3 P;
@@ -105,17 +106,25 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         kalmanY = new KalmanFilterFloat(Q, R);
         kalmanZ = new KalmanFilterFloat(Q, R);
 
-        ekf.Start();
+        ekf.Start(0.09f);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         KalmanFilterFloat kalman = kalmanX[kalmanIndex];
-        calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x);
+        if (useKalmanIndex)
+        {
+            calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x);
+        }
+        else
+        {
+            calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x);
+        }
         calculationFarm.currKalmanFrame.kalmanRawAcc.y = kalmanY.Update(calculationFarm.usedAcceleration.y, Q, R);
         calculationFarm.currKalmanFrame.kalmanRawAcc.z = kalmanZ.Update(calculationFarm.usedAcceleration.z, Q, R);
         calculationFarm.currKalmanFrame.kalmanRawVel += calculationFarm.currKalmanFrame.kalmanRawAcc * calculationFarm.deltaTime;
+        calculationFarm.currKalmanFrame.kalmanRawPos += calculationFarm.currKalmanFrame.kalmanRawVel * calculationFarm.deltaTime;
         calculationFarm.currKalmanFrame.kalmanK.x = kalman.K;
         calculationFarm.currKalmanFrame.kalmanK.y = kalmanY.K;
         calculationFarm.currKalmanFrame.kalmanK.z = kalmanZ.K;
@@ -140,6 +149,8 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         calculationFarm.currKalmanFrame.kalmanK.x = kalmanCompute.K;
 
         calculationFarm.currKalmanFrame.ekfRawAcc = ekf.ProcessMesurement(calculationFarm.usedAcceleration, calculationFarm.time);
+        calculationFarm.currKalmanFrame.ekfRawVel += calculationFarm.currKalmanFrame.ekfRawAcc * calculationFarm.deltaTime;
+        calculationFarm.currKalmanFrame.ekfRawPos += calculationFarm.currKalmanFrame.ekfRawVel * calculationFarm.deltaTime;
     }
 
     public void ResetFilter()
@@ -148,6 +159,7 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         kalmanY.Reset();
         kalmanZ.Reset();
         calculationFarm.currKalmanFrame.kalmanRawVel = Vector3.zero;
+        calculationFarm.currKalmanFrame.kalmanRawPos = Vector3.zero;
     }
 
     public void Switch()

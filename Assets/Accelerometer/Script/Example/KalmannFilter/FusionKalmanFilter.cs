@@ -8,7 +8,16 @@ using VecX = Matrix;
 
 public class FusionKalmanFilter
 {
-    public void Start()
+
+    private ExtendedKalmanFilter ekf;
+    private bool isInitialized;
+    private float previous_timestamp;
+    private Matrix r_mesure;
+    private Matrix hj_;
+    private float noise_ax;
+    private float noise_ay;
+
+    public void Start(float covariance)
     {
         ekf = new ExtendedKalmanFilter();
         isInitialized = false;
@@ -18,7 +27,7 @@ public class FusionKalmanFilter
 
         hj_ = new Matrix(3, 4);
 
-        r_mesure.mat = new double[,]{ { 0.09, 0, 0, 0 }, { 0, 0.0009, 0 , 0},{ 0, 0, 0.09, 0 }, { 0, 0, 0, 0 } };
+        r_mesure.mat = new double[,]{ { covariance, 0, 0, 0 }, { 0, covariance, 0 , 0},{ 0, 0, covariance, 0 }, { 0, 0, 0, 0 } };
         ekf.F = new Matrix(4, 4);
         ekf.P = new Matrix(4, 4);
         ekf.Q = new Matrix(4, 4);
@@ -109,13 +118,5 @@ public class FusionKalmanFilter
         Hj[2, 3] = Hj[0, 1];
         return Hj;
     }
-
-    private ExtendedKalmanFilter ekf;
-    private bool isInitialized;
-    private float previous_timestamp;
-    private Matrix r_mesure;
-    private Matrix hj_;
-    private float noise_ax;
-    private float noise_ay;
 }
 

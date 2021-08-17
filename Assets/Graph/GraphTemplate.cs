@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-
+#if UNITY_EDITOR
 public class GraphButton : Editor
 {
     public override void OnInspectorGUI()
@@ -39,3 +39,4 @@ public class GraphButton : Editor
         }
     }
 }
+#endif

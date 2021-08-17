@@ -31,7 +31,9 @@ public class LocalToGlobal : MonoBehaviour
         Quaternion newQuat =
             ConvertRightHandedToLeftHandedQuaternion(Quaternion.Inverse(_origin) * Input.gyro.attitude);
         newAcc = FromLocalToGlobal(newAcc, newQuat);
+        newAcc *= 9.81f;
         calculationFarm.currGlobalAccFrame.globalAcc = newAcc;
+        
         //switch (testNb)
         //{
         //    case 0:

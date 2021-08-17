@@ -214,6 +214,7 @@ public class XIMUGaitTracking : MonoBehaviour
 
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(XIMUGaitTracking))] //1
 public class XIMUGaitGraphButton : GraphButton
 {
@@ -223,3 +224,4 @@ public class XIMUGaitGraphButton : GraphButton
         CreateJson(ximuGaitTracking.ximuGaitGraph, "Assets/Graph/xIMUGait.graph");
     }
 }
+#endif

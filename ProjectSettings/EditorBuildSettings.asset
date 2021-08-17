@@ -4,7 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Accelerometer/Record/RecordScene.unity
+    guid: 5ab2fad04153f424da958f81d6d3c100
   m_configObjects:
     com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: e89137498e3975544b024405996274c7, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: bc20865e1c4eac241859ebe9dadffbd4, type: 2}

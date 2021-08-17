@@ -515,8 +515,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 945, y: 187}
-  m_SizeDelta: {x: 1716.386, y: 300}
+  m_AnchoredPosition: {x: 455, y: 263.5}
+  m_SizeDelta: {x: 710, y: 427}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4904219242572646922
 GameObject:
@@ -703,7 +703,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.7514038, y: 0}
+  m_AnchoredPosition: {x: 0.7513428, y: 0}
   m_SizeDelta: {x: 1.5029, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4904219242888262764
@@ -872,6 +872,7 @@ MonoBehaviour:
   circleSprite: {fileID: -2413806693520163455, guid: ce92d2d2d62aba24bb2830b5d34fd725, type: 3}
   graphColor: {r: 1, g: 0, b: 0.038758278, a: 1}
   displayDot: 0
+  lineSize: 5
   graphContainer: {fileID: 4904219241805226380}
   labelTextX: {fileID: 4904219241212456184}
   labelTextY: {fileID: 4904219241244572165}

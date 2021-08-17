@@ -53,16 +53,22 @@ public class WindowGraph : MonoBehaviour
 {
     private enum GraphTypes
     {
+        NONE,
         RAW_ACC,
-        KALMAN_ACC,
-        COMPUTE_ACC,
-        EKF_ACC,
         RAW_VEL,
-        KALMAN_VEL,
-        COMPUTE_VEL,
         RAW_POS,
+        KALMAN_ACC,
+        KALMAN_VEL,
         KALMAN_POS,
-        COMPUTE_POS
+        COMPUTE_ACC,
+        COMPUTE_VEL,
+        COMPUTE_POS,
+        RC_ACC,
+        RC_VEL,
+        RC_POS,
+        EKF_ACC,
+        EKF_VEL,
+        EKF_POS,
     }
 
     private enum AxisTypes
@@ -105,6 +111,8 @@ public class WindowGraph : MonoBehaviour
     private List<GraphFrame> frames;
 
     private float timer = 0.0f;
+
+    public Vector3 localData;
     // Start is called before the first frame update
     void Awake()
     {
@@ -132,14 +140,17 @@ public class WindowGraph : MonoBehaviour
     private void ShowGraph()
     {
 
+        float xMinimum = timer - timeDelta;
+        float xMaximum = timer;
+        yMaxDelta = 0;
         foreach (var frame in frames)
         {
+            if (frame.dt < xMaximum - timeDelta)
+                continue;
             if (Mathf.Abs(frame.value) > yMaxDelta/2) yMaxDelta = Mathf.Abs(frame.value)*2.25f;
         }
 
         float yMinimum = -yMaxDelta / 2;
-        float xMinimum = timer - timeDelta;
-        float xMaximum = timer;
         
 
         GameObject lastCircleGameObject = null;
@@ -300,32 +311,53 @@ public class WindowGraph : MonoBehaviour
             case GraphTypes.RAW_ACC:
                 dataVec = calculationFarm.usedAcceleration;
                 break;
-            case GraphTypes.KALMAN_ACC:
-                dataVec = calculationFarm.currKalmanFrame.kalmanRawAcc;
-                break;
-            case GraphTypes.COMPUTE_ACC:
-                dataVec = calculationFarm.currProcessAccFrame.computeResetAcceleration;
-                break;
-            case GraphTypes.EKF_ACC:
-                dataVec = calculationFarm.currKalmanFrame.kalmanComputeAcc;
-                break;
             case GraphTypes.RAW_VEL:
                 dataVec = calculationFarm.currRawAccFrame.rawVelocity;
-                break;
-            case GraphTypes.KALMAN_VEL:
-                dataVec = calculationFarm.currKalmanFrame.kalmanRawVel;
-                break;
-            case GraphTypes.COMPUTE_VEL:
-                dataVec = calculationFarm.currProcessAccFrame.computeResetVelocity;
                 break;
             case GraphTypes.RAW_POS:
                 dataVec = calculationFarm.currRawAccFrame.rawPosition;
                 break;
+            case GraphTypes.KALMAN_ACC:
+                dataVec = calculationFarm.currKalmanFrame.kalmanRawAcc;
+                break;
+            case GraphTypes.KALMAN_VEL:
+                dataVec = calculationFarm.currKalmanFrame.kalmanRawVel;
+                break;
             case GraphTypes.KALMAN_POS:
                 dataVec = calculationFarm.currKalmanFrame.kalmanRawPos;
                 break;
+            case GraphTypes.COMPUTE_ACC:
+                dataVec = calculationFarm.currProcessAccFrame.computeInitAcceleration;
+                break;
+            case GraphTypes.COMPUTE_VEL:
+                dataVec = calculationFarm.currProcessAccFrame.computeInitVelocity;
+                break;
             case GraphTypes.COMPUTE_POS:
-                dataVec = calculationFarm.currProcessAccFrame.computeResetPosition;
+                dataVec = calculationFarm.currProcessAccFrame.computeInitPosition;
+                break;
+            case GraphTypes.RC_ACC:
+                dataVec = calculationFarm.currRCFrame.rcAcc;
+                break;
+            case GraphTypes.RC_VEL:
+                dataVec = calculationFarm.currRCFrame.rcVel;
+                break;
+            case GraphTypes.RC_POS:
+                dataVec = calculationFarm.currRCFrame.rcPos;
+                break;
+            case GraphTypes.EKF_ACC:
+                dataVec = calculationFarm.currKalmanFrame.ekfRawAcc;
+                break;
+            case GraphTypes.EKF_VEL:
+                dataVec = calculationFarm.currKalmanFrame.ekfRawVel;
+                break;
+            case GraphTypes.EKF_POS:
+                dataVec = calculationFarm.currKalmanFrame.ekfRawPos;
+                break;
+            case GraphTypes.NONE:
+                if (GetComponent<DataChildren>())
+                {
+                    dataVec = GetComponent<DataChildren>().GetData();
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
