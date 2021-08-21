@@ -6,18 +6,18 @@ public class RawData : MonoBehaviour
 {
     private DataParent dataParent;
 
-    private CalculationFarm calculationFarm;
+    private NewCalculationFarm calculationFarm;
 
     void Start()
     {
-        calculationFarm = FindObjectOfType<CalculationFarm>();
+        calculationFarm = FindObjectOfType<NewCalculationFarm>();
         dataParent = GetComponent<DataParent>();
     }
 
     void Update()
     {
         dataParent.acc = calculationFarm.currRawAccFrame.userAcceleration;
-        dataParent.vel = calculationFarm.currRawAccFrame.rawVelocity;
-        dataParent.pos = calculationFarm.currRawAccFrame.rawPosition;
+        dataParent.vel = calculationFarm.currRawAccFrame.rawVel;
+        dataParent.pos = calculationFarm.currRawAccFrame.rawPos;
     }
 }

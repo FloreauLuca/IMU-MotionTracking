@@ -4712,7 +4712,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: axisTypes
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4904219243009090722, guid: e8e22395d6af4c24295605a9301a5343, type: 3}
       propertyPath: graphTypes
@@ -6099,8 +6099,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRunTimeData: 0
-  fileName: rawGraph16-08
+  fileName: rawGraph-18-08-1
   resetCount: 0
+  skipFrame: 1
   deltaTime: 0
   time: 0
   initAcceleration: {x: 0, y: 0, z: 0}

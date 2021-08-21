@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using old;
 using UnityEngine;
 
-public class RCPassTester : MonoBehaviour
+public class RCAlgo : CalculationAlgo
 {
     [SerializeField] private float RCHighPassAcc = 1.0f;
     [SerializeField] private float RCLowPassAcc = 1.0f;
@@ -14,8 +13,7 @@ public class RCPassTester : MonoBehaviour
 
     [SerializeField] private float thresholdAcc = 0.1f;
     [SerializeField] private float thresholdVel = 0.1f;
-
-    private CalculationFarm calculationFarm;
+    private RCFrame currFrame;
 
     private Vector3 prevRcAcc;
     private Vector3 prevRcVel;
@@ -33,33 +31,28 @@ public class RCPassTester : MonoBehaviour
     private Vector3 rawVel;
     private Vector3 rawPos;
 
-    void Start()
-    {
-        calculationFarm = FindObjectOfType<CalculationFarm>();
-    }
-
-    void FixedUpdate()
+    public override void UpdateData(float deltaTime)
     {
         rawAcc = calculationFarm.usedAcceleration;
 
         //rcAcc = HighPassFilter.ComputeRC(rawAcc, prevRawAcc, prevRcAcc, Time.fixedDeltaTime, RCHighPassAcc);
-        rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, Time.fixedDeltaTime, RCLowPassAcc);
+        rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, deltaTime, RCLowPassAcc);
         if (Mathf.Abs(rawAcc.y) > thresholdAcc)
         {
-            rawVel = rcAcc * calculationFarm.deltaTime + rcVel;
+            rawVel = rcAcc * deltaTime + rcVel;
         }
         else
         {
             rawVel = Vector3.zero;
         }
 
-        rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, Time.fixedDeltaTime, RCHighPassVel);
+        rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, deltaTime, RCHighPassVel);
         if (Mathf.Abs(rcVel.y) > thresholdVel)
         {
-            rcPos = rcVel * calculationFarm.deltaTime + rcPos;
+            rcPos = rcVel * deltaTime + rcPos;
         }
         //rcPos = HighPassFilter.ComputeRC(rawPos, prevRawPos, prevRcPos, Time.fixedDeltaTime, RCHighPassPos);
-        
+
 
         prevRawAcc = rawAcc;
         prevRawVel = rawVel;
@@ -69,13 +62,35 @@ public class RCPassTester : MonoBehaviour
         prevRcVel = rcVel;
         prevRcPos = rcPos;
 
-        calculationFarm.currRCFrame.rcAcc = rcAcc;
-        calculationFarm.currRCFrame.rcVel = rcVel;
-        calculationFarm.currRCFrame.rcPos = rcPos;
+        currFrame.rcAcc = rcAcc;
+        currFrame.rcVel = rcVel;
+        currFrame.rcPos = rcPos;
+
+        base.UpdateData(deltaTime);
     }
 
-    public void Reset()
+    protected override void Save()
     {
+        calculationFarm.currRCFrame = currFrame;
+    }
+
+    protected override void Display()
+    {
+        dataParent.acc = currFrame.rcAcc;
+        dataParent.vel = currFrame.rcVel;
+        dataParent.pos = currFrame.rcPos;
+    }
+
+    public override void ResetValue()
+    {
+        currFrame.rcAcc = Vector3.zero;
+        currFrame.rcVel = Vector3.zero;
+        currFrame.rcPos = Vector3.zero;
+
+        rawAcc = Vector3.zero;
+        rawVel = Vector3.zero;
+        rawPos = Vector3.zero;
+
         rcAcc = Vector3.zero;
         rcVel = Vector3.zero;
         rcPos = Vector3.zero;

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+namespace old
+{
+  
 public class CalculationFarm : MonoBehaviour
 {
     [SerializeField] private bool useRunTimeData;
@@ -10,6 +13,7 @@ public class CalculationFarm : MonoBehaviour
     private RawGraph readGraph;
     private int frameIndex = 0;
     [SerializeField] private bool resetCount;
+    [SerializeField] private int skipFrame = 5;
 
     //Current Frame data
     public float deltaTime;
@@ -89,21 +93,22 @@ public class CalculationFarm : MonoBehaviour
             {
                 frameIndex = 0;
                 resetCount = false;
+                ResetVelocity();
             }
             initAcceleration = readGraph.frames[0].userAcceleration;
-            frameIndex++;
+            frameIndex += skipFrame;
             if (frameIndex < readGraph.frames.Count)
             {
                 time = readGraph.frames[frameIndex].time;
-                deltaTime = readGraph.frames[frameIndex].time - readGraph.frames[frameIndex - 1].time;
+                deltaTime = readGraph.frames[frameIndex].time - readGraph.frames[frameIndex - skipFrame].time;
                 currRawAccFrame.acceleration = readGraph.frames[frameIndex].acceleration;
                 currRawAccFrame.gravity = readGraph.frames[frameIndex].gravity;
                 currRawAccFrame.userAcceleration = readGraph.frames[frameIndex].userAcceleration;
             }
             else
             {
-                ResetVelocity();
-                resetCount = true;
+                currRawAccFrame.userAcceleration = Vector3.zero;
+                //resetCount = true;
             }
         }
         
@@ -127,30 +132,31 @@ public class CalculationFarm : MonoBehaviour
         currGlobalAccFrame.globalPos += currGlobalAccFrame.globalVelocity * deltaTime;
 
         ////Remove init delta
-        currProcessAccFrame.computeInitAcceleration = currRawAccFrame.acceleration - currRawAccFrame.gravity;
+        //currComputeFrame.computeInitAcceleration = currRawAccFrame.acceleration - currRawAccFrame.gravity;
         //Remove Standard noise
-        currProcessAccFrame.computeInitAcceleration = RemoveBaseNoise(currProcessAccFrame.computeInitAcceleration, 0.1f);
-        currProcessAccFrame.computeInitVelocity += currProcessAccFrame.computeInitAcceleration;
-        currProcessAccFrame.computeInitPosition += currProcessAccFrame.computeInitVelocity * deltaTime;
+        currProcessAccFrame.computeResetAcceleration = RemoveBaseNoise(usedAcceleration, 0.1f);
+        //currComputeFrame.computeInitAcceleration = RemoveBaseNoise(currComputeFrame.computeInitAcceleration, 0.1f);
+        //currComputeFrame.computeInitVelocity += currComputeFrame.computeInitAcceleration * deltaTime;
+        //currComputeFrame.computeInitPosition += currComputeFrame.computeInitVelocity * deltaTime;
 
-        currProcessAccFrame.computeInitVelocity += currProcessAccFrame.computeInitAcceleration;
-        if (currProcessAccFrame.computeInitAcceleration == Vector3.zero)
+        currProcessAccFrame.computeResetVelocity += currProcessAccFrame.computeResetAcceleration * deltaTime;
+        if (currProcessAccFrame.computeResetAcceleration == Vector3.zero)
         {
-            currProcessAccFrame.computeInitVelocity = Vector3.zero;
+            currProcessAccFrame.computeResetVelocity = Vector3.zero;
             //Debug.Log("[Calculation] Reset Velocity at : " + Time.time);
         }
-        currProcessAccFrame.computeInitPosition += currProcessAccFrame.computeInitVelocity * deltaTime;
+        currProcessAccFrame.computeResetPosition += currProcessAccFrame.computeResetVelocity * deltaTime;
     }
 
     Vector3 RemoveBaseNoise(Vector3 vec, float minValue)
     {
         Vector3 computeVec = Vector3.zero;
-        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.x) > minValue)
-            computeVec.x = currProcessAccFrame.computeInitAcceleration.x;
-        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.y) > minValue)
-            computeVec.y = currProcessAccFrame.computeInitAcceleration.y;
-        if (Mathf.Abs(currProcessAccFrame.computeInitAcceleration.z) > minValue)
-            computeVec.z = currProcessAccFrame.computeInitAcceleration.z;
+        if (Mathf.Abs(vec.x) > minValue)
+            computeVec.x = vec.x;
+        if (Mathf.Abs(vec.y) > minValue)
+            computeVec.y = vec.y;
+        if (Mathf.Abs(vec.z) > minValue)
+            computeVec.z = vec.z;
 
         return computeVec;
     }
@@ -183,4 +189,5 @@ public class CalculationFarm : MonoBehaviour
         }
 
     }
+}
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using old;
 using UnityEngine;
 
 public class KalmanData : MonoBehaviour
@@ -54,14 +55,14 @@ public class KalmanData : MonoBehaviour
         //calculationFarm.currKalmanFrame.kalmanQ.x = kalmanX.Q;
         //calculationFarm.currKalmanFrame.kalmanR.x = kalmanX.R;
         ////KalmanFilterFloat kalmanCompute = kalmanComputeX[kalmanIndex];
-        ////if (calculationFarm.currProcessAccFrame.computeResetAcceleration.x == 0)
+        ////if (calculationFarm.currComputeFrame.computeResetAcceleration.x == 0)
         ////{
         ////    calculationFarm.currKalmanFrame.kalmanComputeVel.x = 0;
         ////    kalmanCompute.Reset();
         ////}
         ////else
         ////{
-        ////    calculationFarm.currKalmanFrame.kalmanComputeAcc.x = kalmanCompute.Update(calculationFarm.currProcessAccFrame.computeResetAcceleration.x);
+        ////    calculationFarm.currKalmanFrame.kalmanComputeAcc.x = kalmanCompute.Update(calculationFarm.currComputeFrame.computeResetAcceleration.x);
         ////    calculationFarm.currKalmanFrame.kalmanComputeVel.x += calculationFarm.currKalmanFrame.kalmanComputeAcc.x * calculationFarm.deltaTime;
         ////}
         ////calculationFarm.currKalmanFrame.kalmanK.x = kalmanCompute.K;

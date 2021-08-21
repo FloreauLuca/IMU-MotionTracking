@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using old;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Analytics;
@@ -149,8 +150,8 @@ namespace test
             GlobalFrame globalFrame = new GlobalFrame();
             globalFrame.time = calculationFarm.time;
             globalFrame.globalAcc = calculationFarm.currGlobalAccFrame.globalAcc;
-            globalFrame.globalVel = calculationFarm.currGlobalAccFrame.globalAcc;
-            globalFrame.globalPos = calculationFarm.currGlobalAccFrame.globalAcc;
+            globalFrame.globalVel = calculationFarm.currGlobalAccFrame.globalVelocity;
+            globalFrame.globalPos = calculationFarm.currGlobalAccFrame.globalPos;
             globalGraph.frames.Add(globalFrame);
 
             ComputeFrame computeFrame = new ComputeFrame();
@@ -190,12 +191,20 @@ namespace test
             Directory.CreateDirectory(path + prefix);
             CreateJson(rawGraph, path + prefix + "/rawGraph" + ".graph");
             CreateJson(rawGyrGraph, path + prefix + "/rawGyrGraph" + ".graph");
-            CreateJson(computeGraph, path + prefix + "/processGraph" + ".graph");
+            CreateJson(computeGraph, path + prefix + "/computeGraph" + ".graph");
             CreateJson(kalmanGraph, path + prefix + "/kalmanGraph" + ".graph");
             CreateJson(phaseGraph, path + prefix + "/phaseGraph" + ".graph");
             CreateJson(globalGraph, path + prefix + "/globalGraph" + ".graph");
             CreateJson(rcGraph, path + prefix + "/rcGraph" + ".graph");
             Debug.Log(path + prefix);
+
+            rawGraph = new RawAccGraph();
+            rawGyrGraph = new RawGyrGraph();
+            computeGraph = new ComputeGraph();
+            kalmanGraph = new KalmanGraph();
+            phaseGraph = new PhaseGraph();
+            globalGraph = new GlobalGraph();
+            rcGraph = new RCGraph();
         }
 
         private void CreateJson(object obj, string path)

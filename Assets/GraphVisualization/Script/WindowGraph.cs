@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using old;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -121,16 +122,16 @@ public class WindowGraph : MonoBehaviour
         CreateLines();
     }
 
-    private CalculationFarm calculationFarm;
+    private NewCalculationFarm calculationFarm;
     // Start is called before the first frame update
     void Start()
     {
-        calculationFarm = FindObjectOfType<CalculationFarm>();
+        calculationFarm = FindObjectOfType<NewCalculationFarm>();
     }
 
-    void Update()
+    public void UpdateGraph(float deltaTime)
     {
-        timer += Time.deltaTime;
+        timer += calculationFarm.deltaTime;
         frames.Add(new GraphFrame(timer, GetData()));
         ShowGraph();
         UpdateAxes(timer - timeDelta);
@@ -308,51 +309,51 @@ public class WindowGraph : MonoBehaviour
         Vector3 dataVec = Vector3.zero;
         switch (graphTypes)
         {
-            case GraphTypes.RAW_ACC:
-                dataVec = calculationFarm.usedAcceleration;
-                break;
-            case GraphTypes.RAW_VEL:
-                dataVec = calculationFarm.currRawAccFrame.rawVelocity;
-                break;
-            case GraphTypes.RAW_POS:
-                dataVec = calculationFarm.currRawAccFrame.rawPosition;
-                break;
-            case GraphTypes.KALMAN_ACC:
-                dataVec = calculationFarm.currKalmanFrame.kalmanRawAcc;
-                break;
-            case GraphTypes.KALMAN_VEL:
-                dataVec = calculationFarm.currKalmanFrame.kalmanRawVel;
-                break;
-            case GraphTypes.KALMAN_POS:
-                dataVec = calculationFarm.currKalmanFrame.kalmanRawPos;
-                break;
-            case GraphTypes.COMPUTE_ACC:
-                dataVec = calculationFarm.currProcessAccFrame.computeInitAcceleration;
-                break;
-            case GraphTypes.COMPUTE_VEL:
-                dataVec = calculationFarm.currProcessAccFrame.computeInitVelocity;
-                break;
-            case GraphTypes.COMPUTE_POS:
-                dataVec = calculationFarm.currProcessAccFrame.computeInitPosition;
-                break;
-            case GraphTypes.RC_ACC:
-                dataVec = calculationFarm.currRCFrame.rcAcc;
-                break;
-            case GraphTypes.RC_VEL:
-                dataVec = calculationFarm.currRCFrame.rcVel;
-                break;
-            case GraphTypes.RC_POS:
-                dataVec = calculationFarm.currRCFrame.rcPos;
-                break;
-            case GraphTypes.EKF_ACC:
-                dataVec = calculationFarm.currKalmanFrame.ekfRawAcc;
-                break;
-            case GraphTypes.EKF_VEL:
-                dataVec = calculationFarm.currKalmanFrame.ekfRawVel;
-                break;
-            case GraphTypes.EKF_POS:
-                dataVec = calculationFarm.currKalmanFrame.ekfRawPos;
-                break;
+            //case GraphTypes.RAW_ACC:
+            //    dataVec = calculationFarm.usedAcceleration;
+            //    break;
+            //case GraphTypes.RAW_VEL:
+            //    dataVec = calculationFarm.currRawAccFrame.rawVelocity;
+            //    break;
+            //case GraphTypes.RAW_POS:
+            //    dataVec = calculationFarm.currRawAccFrame.rawPosition;
+            //    break;
+            //case GraphTypes.KALMAN_ACC:
+            //    dataVec = calculationFarm.currKalmanFrame.kalmanRawAcc;
+            //    break;
+            //case GraphTypes.KALMAN_VEL:
+            //    dataVec = calculationFarm.currKalmanFrame.kalmanRawVel;
+            //    break;
+            //case GraphTypes.KALMAN_POS:
+            //    dataVec = calculationFarm.currKalmanFrame.kalmanRawPos;
+            //    break;
+            //case GraphTypes.COMPUTE_ACC:
+            //    dataVec = calculationFarm.currProcessAccFrame.computeInitAcceleration;
+            //    break;
+            //case GraphTypes.COMPUTE_VEL:
+            //    dataVec = calculationFarm.currProcessAccFrame.computeInitVelocity;
+            //    break;
+            //case GraphTypes.COMPUTE_POS:
+            //    dataVec = calculationFarm.currProcessAccFrame.computeInitPosition;
+            //    break;
+            //case GraphTypes.RC_ACC:
+            //    dataVec = calculationFarm.currRCFrame.rcAcc;
+            //    break;
+            //case GraphTypes.RC_VEL:
+            //    dataVec = calculationFarm.currRCFrame.rcVel;
+            //    break;
+            //case GraphTypes.RC_POS:
+            //    dataVec = calculationFarm.currRCFrame.rcPos;
+            //    break;
+            //case GraphTypes.EKF_ACC:
+            //    dataVec = calculationFarm.currKalmanFrame.ekfRawAcc;
+            //    break;
+            //case GraphTypes.EKF_VEL:
+            //    dataVec = calculationFarm.currKalmanFrame.ekfRawVel;
+            //    break;
+            //case GraphTypes.EKF_POS:
+            //    dataVec = calculationFarm.currKalmanFrame.ekfRawPos;
+            //    break;
             case GraphTypes.NONE:
                 if (GetComponent<DataChildren>())
                 {

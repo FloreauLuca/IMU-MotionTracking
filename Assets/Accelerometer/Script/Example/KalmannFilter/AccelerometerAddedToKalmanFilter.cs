@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using old;
 using UnityEngine;
 
 public class AccelerometerAddedToKalmanFilter : MonoBehaviour
@@ -119,7 +120,7 @@ public class AccelerometerAddedToKalmanFilter : MonoBehaviour
         }
         else
         {
-            calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x);
+            calculationFarm.currKalmanFrame.kalmanRawAcc.x = kalman.Update(calculationFarm.usedAcceleration.x, Q, R);
         }
         calculationFarm.currKalmanFrame.kalmanRawAcc.y = kalmanY.Update(calculationFarm.usedAcceleration.y, Q, R);
         calculationFarm.currKalmanFrame.kalmanRawAcc.z = kalmanZ.Update(calculationFarm.usedAcceleration.z, Q, R);

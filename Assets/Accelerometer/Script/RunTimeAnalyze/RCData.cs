@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using old;
 using UnityEngine;
 
 public class RCData : MonoBehaviour
@@ -44,8 +45,8 @@ public class RCData : MonoBehaviour
         rawAcc = calculationFarm.usedAcceleration;
 
         //rcAcc = HighPassFilter.ComputeRC(rawAcc, prevRawAcc, prevRcAcc, Time.fixedDeltaTime, RCHighPassAcc);
-        rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, Time.fixedDeltaTime, RCLowPassAcc);
-        if (Mathf.Abs(rawAcc.y) > thresholdAcc)
+        rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, calculationFarm.deltaTime, RCLowPassAcc);
+        if (Mathf.Abs(rawAcc.magnitude) > thresholdAcc)
         {
             rawVel = rcAcc * calculationFarm.deltaTime + rcVel;
         }
@@ -54,12 +55,15 @@ public class RCData : MonoBehaviour
             rawVel = Vector3.zero;
         }
 
-        rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, Time.fixedDeltaTime, RCHighPassVel);
-        if (Mathf.Abs(rcVel.y) > thresholdVel)
+        rcVel = rawVel;
+        rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, calculationFarm.deltaTime, RCHighPassVel);
+        if (Mathf.Abs(rcVel.magnitude) > thresholdVel)
         {
-            rcPos = rcVel * calculationFarm.deltaTime + rcPos;
+            rawPos = rcVel * calculationFarm.deltaTime + rawPos;
         }
-        //rcPos = HighPassFilter.ComputeRC(rawPos, prevRawPos, prevRcPos, Time.fixedDeltaTime, RCHighPassPos);
+
+        rcPos = rawPos;
+        //rcPos = HighPassFilter.ComputeRC(rawPos, prevRawPos, prevRcPos, calculationFarm.deltaTime, RCHighPassPos);
 
 
         prevRawAcc = rawAcc;
@@ -70,7 +74,7 @@ public class RCData : MonoBehaviour
         prevRcVel = rcVel;
         prevRcPos = rcPos;
         
-        dataParent.acc = rcAcc;
+        dataParent.acc = rawVel;
         dataParent.vel = rcVel;
         dataParent.pos = rcPos;
     }

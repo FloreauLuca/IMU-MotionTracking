@@ -10,15 +10,19 @@ using UnityEngine.Analytics;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
+namespace old
+{
+   
+
 [Serializable]
 public struct RawAccFrame
 {
     public float time;
     public Vector3 acceleration;
-   public Vector3 gravity;
-   public Vector3 userAcceleration;
-   public Vector3 rawVelocity;
-   public Vector3 rawPosition;
+    public Vector3 gravity;
+    public Vector3 userAcceleration;
+    public Vector3 rawVelocity;
+    public Vector3 rawPosition;
 }
 
 [Serializable]
@@ -267,18 +271,18 @@ public class InputViewer : MonoBehaviour
         if (log)
             Log();
     }
-    
+
     void UpdateRawGraph()
     {
         rawGraph.frames.Add(calculationFarm.currRawAccFrame);
         rawGyrGraph.frames.Add(calculationFarm.currRawGyrFrame);
     }
-    
+
     void UpdateProcessAccGraph()
     {
         processGraph.frames.Add(calculationFarm.currProcessAccFrame);
     }
-    
+
     void UpdateKalmanGraph()
     {
         kalmanGraph.frames.Add(calculationFarm.currKalmanFrame);
@@ -354,7 +358,7 @@ public class InputViewer : MonoBehaviour
 
 
 
-        currentAnalysisFrame.time = (currentPhase.startValue + currentPhase.endValue)/2;
+        currentAnalysisFrame.time = (currentPhase.startValue + currentPhase.endValue) / 2;
         analysisGraph.frames.Add(currentAnalysisFrame);
     }
 
@@ -455,4 +459,5 @@ public class InputGraphButton : GraphButton
         CreateJson(inputViewer.rcGraph, "Assets/Graph/" + prefix + "rcGraph" + suffix + ".graph");
     }
 }
-#endif
+#endif 
+}
