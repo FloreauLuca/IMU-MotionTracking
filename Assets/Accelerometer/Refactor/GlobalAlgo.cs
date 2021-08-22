@@ -16,10 +16,12 @@ public class GlobalAlgo : CalculationAlgo
 
     public override void UpdateData(float deltaTime)
     {
+        if (!calculationFarm) return;
         Vector3 newAcc = FromMEMSpaceToUnitySpace(calculationFarm.currRawAccFrame.userAcceleration);
         Quaternion newQuat =
             ConvertRightHandedToLeftHandedQuaternion(Quaternion.Inverse(_origin) * calculationFarm.currRawGyrFrame.attitude);
         newAcc = FromLocalToGlobal(newAcc, newQuat);
+        newAcc = FromMEMSpaceToUnitySpace2(newAcc);
         newAcc *= 9.81f;
         currFrame.globalAcc = newAcc;
 
@@ -32,6 +34,7 @@ public class GlobalAlgo : CalculationAlgo
     protected override void Save()
     {
         calculationFarm.currGlobalAccFrame = currFrame;
+        calculationFarm.currGlobalAccFrame.time = calculationFarm.time;
     }
 
     protected override void Display()
@@ -51,6 +54,11 @@ public class GlobalAlgo : CalculationAlgo
     Vector3 FromMEMSpaceToUnitySpace(Vector3 rawAcc)
     {
         return new Vector3(-rawAcc.x, -rawAcc.z, -rawAcc.y);
+    }
+
+    Vector3 FromMEMSpaceToUnitySpace2(Vector3 rawAcc)
+    {
+        return new Vector3(rawAcc.x, rawAcc.y, -rawAcc.z);
     }
 
     Vector3 FromLocalToGlobal(Vector3 localAcc, Quaternion rotation)

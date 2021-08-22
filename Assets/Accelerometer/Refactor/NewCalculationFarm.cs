@@ -38,6 +38,8 @@ public class NewCalculationFarm : MonoBehaviour
 
     public WindowGraph[] windowGraph = new WindowGraph[100];
 
+    public OutputManager outputManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,6 +66,8 @@ public class NewCalculationFarm : MonoBehaviour
         {
             windowGraph[i] = graphs[i];
         }
+
+        outputManager = FindObjectOfType<OutputManager>();
     }
     
     void Update()
@@ -135,6 +139,9 @@ public class NewCalculationFarm : MonoBehaviour
         currRawAccFrame.rawVel += currRawAccFrame.userAcceleration * deltaTime;
         currRawAccFrame.rawPos += currRawAccFrame.rawVel * deltaTime;
 
+        currRawAccFrame.time = time;
+        currRawGyrFrame.time = time;
+
         foreach (CalculationAlgo calculationAlgo in algos)
         {
             calculationAlgo.UpdateData(deltaTime);
@@ -147,6 +154,8 @@ public class NewCalculationFarm : MonoBehaviour
                 graph.UpdateGraph(deltaTime);
             }
         }
+
+        outputManager.UpdateGraph();
     }
 
 

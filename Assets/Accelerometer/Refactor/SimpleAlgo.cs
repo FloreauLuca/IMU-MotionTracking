@@ -10,6 +10,7 @@ public class SimpleAlgo : CalculationAlgo
     
     public override void UpdateData(float deltaTime)
     {
+        if (!calculationFarm) return;
         //Remove init delta
         currFrame.computeAcc = calculationFarm.usedAcceleration;
 
@@ -30,6 +31,7 @@ public class SimpleAlgo : CalculationAlgo
     protected override void Save()
     {
         calculationFarm.currComputeFrame = currFrame;
+        calculationFarm.currComputeFrame.time = calculationFarm.time;
     }
 
     protected override void Display()

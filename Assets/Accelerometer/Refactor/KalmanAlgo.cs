@@ -32,6 +32,7 @@ public class KalmanAlgo : CalculationAlgo
 
     public override void UpdateData(float deltaTime)
     {
+        if (!calculationFarm) return;
         if (applyOn == 0)
         {
             currFrame.kalmanAcc.x = kalmanX.Update(calculationFarm.usedAcceleration.x, Q, R);
@@ -65,6 +66,7 @@ public class KalmanAlgo : CalculationAlgo
     protected override void Save()
     {
         calculationFarm.currKalmanFrame = currFrame;
+        calculationFarm.currKalmanFrame.time = calculationFarm.time;
     }
 
     protected override void Display()

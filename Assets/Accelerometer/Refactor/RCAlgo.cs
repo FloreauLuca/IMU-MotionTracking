@@ -33,6 +33,7 @@ public class RCAlgo : CalculationAlgo
 
     public override void UpdateData(float deltaTime)
     {
+        if (!calculationFarm) return;
         rawAcc = calculationFarm.usedAcceleration;
 
         //rcAcc = HighPassFilter.ComputeRC(rawAcc, prevRawAcc, prevRcAcc, Time.fixedDeltaTime, RCHighPassAcc);
@@ -72,6 +73,7 @@ public class RCAlgo : CalculationAlgo
     protected override void Save()
     {
         calculationFarm.currRCFrame = currFrame;
+        calculationFarm.currRCFrame.time = calculationFarm.time;
     }
 
     protected override void Display()

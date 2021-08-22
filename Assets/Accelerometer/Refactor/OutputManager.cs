@@ -129,7 +129,7 @@ public class OutputManager : MonoBehaviour
 
     private float dt;
 
-    private void LateUpdate()
+    public void UpdateGraph()
     {
         rawGraph.frames.Add(calculationFarm.currRawAccFrame);
         
