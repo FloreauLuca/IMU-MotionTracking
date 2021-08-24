@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Accelerometer/Scenes/RefactorScene.unity
+    guid: 8921302bdf6f0174a8be47c1617ea1ee
+  - enabled: 1
     path: Assets/Accelerometer/Scenes/TestingScene.unity
     guid: 65a9a24ada5bbf24e98ccdb8540d3ff4
   - enabled: 1

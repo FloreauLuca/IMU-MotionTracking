@@ -10,15 +10,18 @@ public class OtherAlgo : CalculationAlgo
 
     public override void UpdateData(float deltaTime)
     {
-        accs.Add(calculationFarm.usedAcceleration *deltaTime);
-        Vector3 avg = Vector3.zero;
-        foreach (Vector3 acc in accs)
-        {
-            avg += acc;
-        }
+        //accs.Add(calculationFarm.usedAcceleration *deltaTime);
+        //Vector3 avg = Vector3.zero;
+        //foreach (Vector3 acc in accs)
+        //{
+        //    avg += acc;
+        //}
 
-        avg /= accs.Count;
-        currFrame.computeAcc = avg;
+        //avg /= accs.Count;
+        //currFrame.computeAcc = avg;
+
+
+        currFrame.computeAcc = calculationFarm.currRawGyrFrame.attitude.eulerAngles;
         base.UpdateData(deltaTime);
     }
 

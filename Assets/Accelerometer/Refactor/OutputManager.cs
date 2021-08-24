@@ -197,6 +197,7 @@ public class OutputManager : MonoBehaviour
         phaseGraph = new PhaseGraph();
         globalGraph = new GlobalGraph();
         rcGraph = new RCGraph();
+        calculationFarm.ResetVelocity();
     }
 
     private void CreateJson(object obj, string path)

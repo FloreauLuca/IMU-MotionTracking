@@ -20,6 +20,11 @@ public class KalmanAlgo : CalculationAlgo
 
     private FusionKalmanFilter ekf = new FusionKalmanFilter();
 
+    [SerializeField] private bool resetVelocity = true;
+
+    [SerializeField] private float thresholdAcc = 0.1f;
+    [SerializeField] private float thresholdVel = 0.1f;
+
     void Start()
     {
         base.Start();
@@ -38,13 +43,26 @@ public class KalmanAlgo : CalculationAlgo
             currFrame.kalmanAcc.x = kalmanX.Update(calculationFarm.usedAcceleration.x, Q, R);
             currFrame.kalmanAcc.y = kalmanY.Update(calculationFarm.usedAcceleration.y, Q, R);
             currFrame.kalmanAcc.z = kalmanZ.Update(calculationFarm.usedAcceleration.z, Q, R);
+            currFrame.kalmanAcc = RemoveBaseNoise(currFrame.kalmanAcc, thresholdAcc);
+
             currFrame.kalmanVel += currFrame.kalmanAcc * calculationFarm.deltaTime;
+            if (resetVelocity)
+                currFrame.kalmanVel = ResetVelocity(currFrame.kalmanVel, currFrame.kalmanAcc);
+
             currFrame.kalmanPos += currFrame.kalmanVel * calculationFarm.deltaTime;
         }
         else if (applyOn == 1)
         {
             currFrame.kalmanAcc = calculationFarm.usedAcceleration;
-            currFrame.kalmanVel += currFrame.kalmanAcc * calculationFarm.deltaTime;
+            currFrame.kalmanAcc = RemoveBaseNoise(currFrame.kalmanAcc, thresholdAcc);
+            if (currFrame.kalmanAcc != Vector3.zero)
+            {
+                currFrame.kalmanVel += currFrame.kalmanAcc * calculationFarm.deltaTime;
+            }
+            else if (resetVelocity)
+            {
+                currFrame.kalmanVel = Vector3.zero;
+            }
             currFrame.kalmanVel.x = kalmanX.Update(currFrame.kalmanVel.x, Q, R);
             currFrame.kalmanVel.y = kalmanY.Update(currFrame.kalmanVel.y, Q, R);
             currFrame.kalmanVel.z = kalmanZ.Update(currFrame.kalmanVel.z, Q, R);
@@ -53,7 +71,15 @@ public class KalmanAlgo : CalculationAlgo
         else if (applyOn == 2)
         {
             currFrame.kalmanAcc = calculationFarm.usedAcceleration;
-            currFrame.kalmanVel += currFrame.kalmanAcc * calculationFarm.deltaTime;
+            currFrame.kalmanAcc = RemoveBaseNoise(currFrame.kalmanAcc, thresholdAcc);
+            if (currFrame.kalmanAcc != Vector3.zero)
+            {
+                currFrame.kalmanVel += currFrame.kalmanAcc * calculationFarm.deltaTime;
+            }
+            else if (resetVelocity)
+            {
+                currFrame.kalmanVel = Vector3.zero;
+            }
             currFrame.kalmanPos += currFrame.kalmanVel * calculationFarm.deltaTime;
             currFrame.kalmanPos.x = kalmanX.Update(currFrame.kalmanPos.x, Q, R);
             currFrame.kalmanPos.y = kalmanY.Update(currFrame.kalmanPos.y, Q, R);
@@ -61,6 +87,34 @@ public class KalmanAlgo : CalculationAlgo
         }
 
         base.UpdateData(deltaTime);
+    }
+
+    Vector3 RemoveBaseNoise(Vector3 vec, float minValue)
+    {
+        Vector3 computeVec = Vector3.zero;
+        if (Mathf.Abs(vec.x) > minValue)
+            computeVec.x = vec.x;
+        if (Mathf.Abs(vec.y) > minValue)
+            computeVec.y = vec.y;
+        if (Mathf.Abs(vec.z) > minValue)
+            computeVec.z = vec.z;
+
+        return computeVec;
+    }
+
+    Vector3 ResetVelocity(Vector3 vel, Vector3 acc)
+    {
+        Vector3 computeVec = Vector3.zero;
+        //if (acc.x != 0)
+        //    computeVec.x = vel.x;
+        //if (acc.y != 0)
+        //    computeVec.y = vel.y;
+        //if (acc.z != 0)
+        //    computeVec.z = vel.z;
+        if (acc != Vector3.zero)
+            computeVec = vel;
+
+        return computeVec;
     }
 
     protected override void Save()
@@ -78,6 +132,7 @@ public class KalmanAlgo : CalculationAlgo
     
     public override void ResetValue()
     {
+        if (!calculationFarm) return;
         kalmanX.Reset();
         kalmanY.Reset();
         kalmanZ.Reset();

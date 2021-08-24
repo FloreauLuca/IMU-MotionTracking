@@ -11,6 +11,15 @@ public class RCAlgo : CalculationAlgo
     [SerializeField] private float RCHighPassPos = 1.0f;
     [SerializeField] private float RCLowPassPos = 1.0f;
 
+    [SerializeField] private bool highPassAcc = false;
+    [SerializeField] private bool highPassVel = false;
+    [SerializeField] private bool highPassPos = false;
+    [SerializeField] private bool lowPassAcc = false;
+    [SerializeField] private bool lowPassVel = false;
+    [SerializeField] private bool lowPassPos = false;
+
+    [SerializeField] private bool resetVelocity = true;
+
     [SerializeField] private float thresholdAcc = 0.1f;
     [SerializeField] private float thresholdVel = 0.1f;
     private RCFrame currFrame;
@@ -35,24 +44,47 @@ public class RCAlgo : CalculationAlgo
     {
         if (!calculationFarm) return;
         rawAcc = calculationFarm.usedAcceleration;
-
-        //rcAcc = HighPassFilter.ComputeRC(rawAcc, prevRawAcc, prevRcAcc, Time.fixedDeltaTime, RCHighPassAcc);
-        rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, deltaTime, RCLowPassAcc);
-        if (Mathf.Abs(rawAcc.y) > thresholdAcc)
+        rcAcc = rawAcc;
+        if (highPassAcc)
         {
-            rawVel = rcAcc * deltaTime + rcVel;
-        }
-        else
-        {
-            rawVel = Vector3.zero;
+            rcAcc = HighPassFilter.ComputeRC(rawAcc, prevRawAcc, prevRcAcc, deltaTime, RCHighPassAcc);
         }
 
-        rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, deltaTime, RCHighPassVel);
-        if (Mathf.Abs(rcVel.y) > thresholdVel)
+        if (lowPassAcc)
         {
-            rcPos = rcVel * deltaTime + rcPos;
+            rcAcc = LowPassFilter.ComputeRC(rawAcc, prevRcAcc, deltaTime, RCLowPassAcc);
         }
-        //rcPos = HighPassFilter.ComputeRC(rawPos, prevRawPos, prevRcPos, Time.fixedDeltaTime, RCHighPassPos);
+
+        rcAcc = RemoveBaseNoise(rcAcc, thresholdAcc);
+
+        rawVel = rcAcc * deltaTime + rcVel;
+        if (resetVelocity)
+            rawVel = ResetVelocity(rawVel, rcAcc);
+
+        rcVel = rawVel;
+        if (highPassVel)
+        {
+            rcVel = HighPassFilter.ComputeRC(rawVel, prevRawVel, prevRcVel, deltaTime, RCHighPassVel);
+        }
+
+        if (lowPassVel)
+        {
+            rcVel = LowPassFilter.ComputeRC(rawVel, prevRcVel, deltaTime, RCLowPassVel);
+        }
+
+        rcVel = RemoveBaseNoise(rcVel, thresholdVel);
+        rawPos = rcVel * deltaTime + rcPos;
+
+        rcPos = rawPos;
+        if (highPassPos)
+        {
+            rcPos = HighPassFilter.ComputeRC(rawPos, prevRawPos, prevRcPos, deltaTime, RCHighPassPos);
+        }
+
+        if (lowPassPos)
+        {
+            rcPos = LowPassFilter.ComputeRC(rawPos, prevRcPos, deltaTime, RCLowPassPos);
+        }
 
 
         prevRawAcc = rawAcc;
@@ -68,6 +100,34 @@ public class RCAlgo : CalculationAlgo
         currFrame.rcPos = rcPos;
 
         base.UpdateData(deltaTime);
+    }
+
+    Vector3 RemoveBaseNoise(Vector3 vec, float minValue)
+    {
+        Vector3 computeVec = Vector3.zero;
+        if (Mathf.Abs(vec.x) > minValue)
+            computeVec.x = vec.x;
+        if (Mathf.Abs(vec.y) > minValue)
+            computeVec.y = vec.y;
+        if (Mathf.Abs(vec.z) > minValue)
+            computeVec.z = vec.z;
+
+        return computeVec;
+    }
+
+    Vector3 ResetVelocity(Vector3 vel, Vector3 acc)
+    {
+        Vector3 computeVec = Vector3.zero;
+        //if (acc.x != 0)
+        //    computeVec.x = vel.x;
+        //if (acc.y != 0)
+        //    computeVec.y = vel.y;
+        //if (acc.z != 0)
+        //    computeVec.z = vel.z;
+        if (acc != Vector3.zero)
+            computeVec = vel;
+
+        return computeVec;
     }
 
     protected override void Save()

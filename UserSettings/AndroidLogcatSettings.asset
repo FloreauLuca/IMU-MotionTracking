@@ -2,24 +2,12 @@
     "m_SelectedDeviceId": "ce011821cd21e8760d",
     "m_SelectedPackage": {
         "deviceId": "ce011821cd21e8760d",
-        "name": "com.DefaultCompany.MovementProject",
-        "processId": 4997,
+        "name": "com.KiddyProd.MovementProject",
+        "processId": 7118,
         "exited": false
     },
     "m_SelectedPriority": 0,
     "m_KnownPackagesForSerialization": [
-        {
-            "deviceId": "ce011821cd21e8760d",
-            "name": "com.DefaultCompany.MovementProject",
-            "processId": 29014,
-            "exited": true
-        },
-        {
-            "deviceId": "ce011821cd21e8760d",
-            "name": "com.DefaultCompany.MovementProject",
-            "processId": 31401,
-            "exited": true
-        },
         {
             "deviceId": "ce011821cd21e8760d",
             "name": "com.DefaultCompany.MovementProject",
@@ -30,18 +18,30 @@
             "deviceId": "ce011821cd21e8760d",
             "name": "com.sec.android.app.launcher",
             "processId": 5356,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "ce011821cd21e8760d",
             "name": "com.DefaultCompany.MovementProject",
             "processId": 3289,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "ce011821cd21e8760d",
             "name": "com.DefaultCompany.MovementProject",
             "processId": 4997,
+            "exited": true
+        },
+        {
+            "deviceId": "ce011821cd21e8760d",
+            "name": "com.KiddyProd.MovementProject",
+            "processId": 7118,
+            "exited": true
+        },
+        {
+            "deviceId": "ce011821cd21e8760d",
+            "name": "com.KiddyProd.MovementProject",
+            "processId": 7901,
             "exited": false
         }
     ],

@@ -7,6 +7,9 @@ public class SimpleAlgo : CalculationAlgo
     [SerializeField] private float thresholdAcc = 0.1f;
 
     private ComputeFrame currFrame;
+
+    [SerializeField] private bool removeNoise = true;
+    [SerializeField] private bool resetVelocity = true;
     
     public override void UpdateData(float deltaTime)
     {
@@ -14,15 +17,15 @@ public class SimpleAlgo : CalculationAlgo
         //Remove init delta
         currFrame.computeAcc = calculationFarm.usedAcceleration;
 
-        //Remove Standard noise
-        currFrame.computeAcc = RemoveBaseNoise(currFrame.computeAcc, thresholdAcc);
-        currFrame.computeVel += currFrame.computeAcc * calculationFarm.deltaTime;
-        //currFrame.pos += currFrame.vel * calculationFarm.deltaTime;
-
-        if (currFrame.computeAcc == Vector3.zero)
+        if (removeNoise)
         {
-            currFrame.computeVel = Vector3.zero;
+            currFrame.computeAcc = RemoveBaseNoise(currFrame.computeAcc, thresholdAcc);
         }
+
+        currFrame.computeVel += currFrame.computeAcc * calculationFarm.deltaTime;
+        if (resetVelocity)
+            currFrame.computeVel = ResetVelocity(currFrame.computeVel, currFrame.computeAcc);
+
         currFrame.computePos += currFrame.computeVel * calculationFarm.deltaTime;
 
         base.UpdateData(deltaTime);
@@ -51,6 +54,20 @@ public class SimpleAlgo : CalculationAlgo
         if (Mathf.Abs(vec.z) > minValue)
             computeVec.z = vec.z;
 
+        return computeVec;
+    }
+
+    Vector3 ResetVelocity(Vector3 vel, Vector3 acc)
+    {
+        Vector3 computeVec = Vector3.zero;
+        //if (acc.x != 0)
+        //    computeVec.x = vel.x;
+        //if (acc.y != 0)
+        //    computeVec.y = vel.y;
+        //if (acc.z != 0)
+        //    computeVec.z = vel.z;
+        if (acc != Vector3.zero)
+            computeVec = vel;
         return computeVec;
     }
 

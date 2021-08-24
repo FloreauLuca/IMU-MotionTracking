@@ -131,7 +131,7 @@ public class WindowGraph : MonoBehaviour
 
     public void UpdateGraph(float deltaTime)
     {
-        timer += calculationFarm.deltaTime;
+        timer += deltaTime;
         frames.Add(new GraphFrame(timer, GetData()));
         ShowGraph();
         UpdateAxes(timer - timeDelta);

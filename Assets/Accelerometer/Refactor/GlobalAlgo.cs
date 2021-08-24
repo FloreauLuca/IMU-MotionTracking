@@ -11,7 +11,6 @@ public class GlobalAlgo : CalculationAlgo
     void Start()
     {
         base.Start();
-        getOrigin();
     }
 
     public override void UpdateData(float deltaTime)
@@ -21,7 +20,6 @@ public class GlobalAlgo : CalculationAlgo
         Quaternion newQuat =
             ConvertRightHandedToLeftHandedQuaternion(Quaternion.Inverse(_origin) * calculationFarm.currRawGyrFrame.attitude);
         newAcc = FromLocalToGlobal(newAcc, newQuat);
-        newAcc = FromMEMSpaceToUnitySpace2(newAcc);
         newAcc *= 9.81f;
         currFrame.globalAcc = newAcc;
 
@@ -46,6 +44,7 @@ public class GlobalAlgo : CalculationAlgo
     
     public override void ResetValue()
     {
+        getOrigin();
         currFrame.globalAcc = Vector3.zero;
         currFrame.globalVel = Vector3.zero;
         currFrame.globalPos = Vector3.zero;
@@ -55,12 +54,7 @@ public class GlobalAlgo : CalculationAlgo
     {
         return new Vector3(-rawAcc.x, -rawAcc.z, -rawAcc.y);
     }
-
-    Vector3 FromMEMSpaceToUnitySpace2(Vector3 rawAcc)
-    {
-        return new Vector3(rawAcc.x, rawAcc.y, -rawAcc.z);
-    }
-
+    
     Vector3 FromLocalToGlobal(Vector3 localAcc, Quaternion rotation)
     {
         Matrix4x4 rotMat = Matrix4x4.Rotate(rotation);
@@ -70,7 +64,7 @@ public class GlobalAlgo : CalculationAlgo
 
     private void getOrigin()
     {
-        _origin = Input.gyro.attitude;
+        _origin = calculationFarm.currRawGyrFrame.attitude;
     }
 
     public static Quaternion ConvertRightHandedToLeftHandedQuaternion(Quaternion rightHandedQuaternion)

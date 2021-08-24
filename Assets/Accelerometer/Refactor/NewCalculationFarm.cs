@@ -13,7 +13,7 @@ public class NewCalculationFarm : MonoBehaviour
     private RawAccGraph readAccGraph = new RawAccGraph();
     private RawGyrGraph readGyrGraph = new RawGyrGraph();
     private int frameIndex = 0;
-    [SerializeField] private bool resetCount;
+    [SerializeField] private bool resetCount = true;
     [SerializeField] private bool autoRestart;
     [SerializeField] private int skipFrame = 5;
 
@@ -43,6 +43,7 @@ public class NewCalculationFarm : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        resetCount = true;
         Input.gyro.enabled = true;
         if (!useRunTimeData)
         {
@@ -68,20 +69,25 @@ public class NewCalculationFarm : MonoBehaviour
         }
 
         outputManager = FindObjectOfType<OutputManager>();
+
     }
     
     void Update()
     {
+        frameIndex += 1;
+
         if (useRunTimeData)
         {
             deltaTime = Time.deltaTime;
             time = Time.time;
 
             //Wait acceleration initialisation
-            if (Input.acceleration == Vector3.zero) return;
+            if (Input.acceleration == Vector3.zero && Input.gyro.attitude == new Quaternion(0, 0, 0, 0)) return;
 
             if (Input.acceleration != Vector3.zero && initAcceleration == Vector3.zero)
             {
+                currRawGyrFrame.attitude = Input.gyro.attitude;
+                ResetVelocity();
                 initAcceleration = Input.gyro.userAcceleration;
             }
 
@@ -99,6 +105,15 @@ public class NewCalculationFarm : MonoBehaviour
         {
             if (resetCount)
             {
+                if (readGyrGraph != null)
+                {
+                    currRawGyrFrame.attitude = readGyrGraph.frames[0].attitude;
+                    currRawGyrFrame.rotationRate = readGyrGraph.frames[0].rotationRate;
+                }
+                else
+                {
+                    currRawGyrFrame.attitude = Quaternion.identity;
+                }
                 frameIndex = 0;
                 resetCount = false;
                 ResetVelocity();
@@ -106,15 +121,13 @@ public class NewCalculationFarm : MonoBehaviour
 
             initAcceleration = readAccGraph.frames[0].userAcceleration;
 
-            frameIndex += skipFrame;
-
             if (frameIndex < readAccGraph.frames.Count)
             {
                 if (readAccGraph != null)
                 {
                     RawAccFrame frame = readAccGraph.frames[frameIndex];
                     time = frame.time;
-                    deltaTime = time - readAccGraph.frames[frameIndex - skipFrame].time;
+                    deltaTime = time - readAccGraph.frames[frameIndex - 1].time;
                     currRawAccFrame.acceleration = frame.acceleration;
                     currRawAccFrame.gravity = frame.gravity;
                     currRawAccFrame.userAcceleration = frame.userAcceleration;
@@ -147,11 +160,14 @@ public class NewCalculationFarm : MonoBehaviour
             calculationAlgo.UpdateData(deltaTime);
         }
 
-        foreach (WindowGraph graph in windowGraph)
+        if (frameIndex % skipFrame == 0)
         {
-            if (graph)
+            foreach (WindowGraph graph in windowGraph)
             {
-                graph.UpdateGraph(deltaTime);
+                if (graph)
+                {
+                    graph.UpdateGraph(deltaTime * skipFrame);
+                }
             }
         }
 
