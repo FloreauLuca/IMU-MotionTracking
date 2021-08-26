@@ -11,6 +11,37 @@ var phaseColor =
     "#0000F9",
     "#86007D",
 ];
+var XColor =
+[
+    "#FF0000",
+    "#FF7A7A",
+    "#800000",
+    "#FF4D4D",
+    "#B90000"
+];
+var YColor =
+[
+    "#00E60F",
+    "#6EE676",
+    "#006607",
+    "#54FF60",
+    "#00A30B"
+];
+var ZColor =
+[
+    "#0008FF",
+    "#7A7FFF",
+    "#000480",
+    "#4D52FF",
+    "#0005BD"
+];
+var realDataColor =
+[
+    "#FF4D4D",
+    "#54FF60",
+    "#B90000",
+    "#00A30B"
+];
 const isObject = (obj) => {
     return Object.prototype.toString.call(obj) === "[object Object]";
 };
@@ -31,7 +62,8 @@ function initChart() {
             zoomEnabled: true,
             zoomType: "xy",
             title: {
-                text: "Accelerometer data"
+                text: "Accelerometer data",
+				fontSize: 30,
             },
             toolTip: {
                 content: "{name} <br/>{x}: <strong>{y}</strong>",
@@ -79,6 +111,7 @@ function createCheckbox(name, container) {
 }
 
 function addCheckBox(name, container) {
+	if (name === "time") return false; 
     var checkbox = document.getElementById(name);
     if (!checkbox) {
         checkbox = createCheckbox(name, container);
@@ -105,24 +138,28 @@ function updateVisibility() {
         if (data.find(data_ => data_.name == key + axis) != undefined) {
             var obj = data.find(data_ => data_.name == key + axis);
             obj.visible = checked && checkedAxis;
+            obj.showInLegend = checked && checkedAxis;
         }
         axis = "Y";
         checkedAxis = addCheckBox(axis, "checkboxAxisContainer").checked;
         if (data.find(data_ => data_.name == key + axis) != undefined) {
             var obj = data.find(data_ => data_.name == key + axis);
             obj.visible = checked && checkedAxis;
+            obj.showInLegend = checked && checkedAxis;
         }
         axis = "Z";
         checkedAxis = addCheckBox(axis, "checkboxAxisContainer").checked;
         if (data.find(data_ => data_.name == key + axis) != undefined) {
             var obj = data.find(data_ => data_.name == key + axis);
             obj.visible = checked && checkedAxis;
+            obj.showInLegend = checked && checkedAxis;
         }
         console.log(key);
         if (data.find(data_ => data_.name == key) != undefined) {
             console.log("find");
             var obj = data.find(data_ => data_.name == key);
             obj.visible = checked;
+            obj.showInLegend = checked;
             console.log(obj.visible);
         }
     });
@@ -133,8 +170,10 @@ function updateVisibility() {
 function writeToDataPoint(json) {
 	var timeMult = parseFloat(document.getElementById("timeMult").value);
 	var timeAdd = parseFloat(document.getElementById("timeAdd").value);
+	var keyIndex = 0;
     graphNames.forEach(key => {
         console.log(key);
+		keyIndex++;
         var dataPoints;
         if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) {
             dataPoints = {};
@@ -173,58 +212,11 @@ function writeToDataPoint(json) {
             }
 
             console.log(data);
-            addAxisData("X", "red");
-            addAxisData("Y", "green");
-            addAxisData("Z", "blue");
+            addAxisData("X", XColor[keyIndex%5]);
+            addAxisData("Y", YColor[keyIndex%5]);
+            addAxisData("Z", ZColor[keyIndex%5]);
 
-        } else if (Array.isArray(json.frames[0][key])) {
-            dataPoints = {};
-            dataPoints["X"] = [];
-            dataPoints["Y"] = [];
-            dataPoints["Z"] = [];
-            for (var i = 0; i < json.frames.length; i++) {
-                dataPoints["X"].push({
-                    label: (json.frames[i].time + timeAdd) * timeMult,
-                    y: []
-                });
-                dataPoints["Y"].push({
-                    label: (json.frames[i].time + timeAdd) * timeMult,
-                    y: []
-                });
-                dataPoints["Z"].push({
-                    label: (json.frames[i].time + timeAdd) * timeMult,
-                    y: []
-                });
-                for (var j = 0; j < json.frames[i][key].length; j++) {
-                    dataPoints["X"][i].y.push(json.frames[i][key][j].x);
-                    dataPoints["Y"][i].y.push(json.frames[i][key][j].y);
-                    dataPoints["Z"][i].y.push(json.frames[i][key][j].z);
-                }
-            }
-
-
-            function addBoxAxisData(axis, colorAxis) {
-                console.log(key + axis);
-                if (data.find(data_ => data_.name == key + axis) != undefined) {
-                    var obj = data.find(data_ => data_.name == key + axis);
-                    obj.dataPoints = dataPoints[axis];
-                } else {
-                    data.push({
-                        type: "boxAndWhisker",
-                        showInLegend: true,
-                        name: key + axis,
-                        color: colorAxis,
-                        dataPoints: dataPoints[axis]
-                    });
-                }
-            }
-
-            console.log(data);
-            addBoxAxisData("X", "red");
-            addBoxAxisData("Y", "green");
-            addBoxAxisData("Z", "blue");
-
-        } else {
+        } else if (typeof json.frames[0][key] === 'number') {
             dataPoints = [];
             for (var i = 0; i < json.frames.length; i++) {
 				var time = ((json.frames[i].time + timeAdd) * timeMult);
@@ -236,12 +228,12 @@ function writeToDataPoint(json) {
             if (data.find(data_ => data_.name == key) != undefined) {
                 var obj = data.find(data_ => data_.name == key);
                 obj.dataPoints = dataPoints;
-
             } else {
                 data.push({
                     type: "line",
                     showInLegend: true,
                     name: key,
+                    color: realDataColor[keyIndex%4],
                     dataPoints: dataPoints
                 });
             }
@@ -300,4 +292,13 @@ function generateFixedAverage() {
 }
 
 function generatePhaseAverage() {
+}
+
+function setTitle()
+{
+	chart.options.title.text = document.getElementById("titletext").value;
+	chart.options.axisX.title = document.getElementById("xlegendtext").value;
+	chart.options.axisY.title = document.getElementById("ylegendtext").value;
+	chart.render();
+	console.log(chart);
 }

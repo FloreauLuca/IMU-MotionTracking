@@ -79,7 +79,7 @@ public class NewCalculationFarm : MonoBehaviour
         if (useRunTimeData)
         {
             deltaTime = Time.deltaTime;
-            time = Time.time;
+            time += deltaTime;
 
             //Wait acceleration initialisation
             if (Input.acceleration == Vector3.zero && Input.gyro.attitude == new Quaternion(0, 0, 0, 0)) return;
@@ -184,6 +184,8 @@ public class NewCalculationFarm : MonoBehaviour
         {
             calculationAlgo.ResetValue();
         }
+
+        time = 0;
 
     }
 

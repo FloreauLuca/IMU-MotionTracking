@@ -115,18 +115,38 @@ public class RCAlgo : CalculationAlgo
         return computeVec;
     }
 
+    [SerializeField] private float zeroDelta = 0.1f;
+    private List<Vector3> window = new List<Vector3>();
+    private List<float> time = new List<float>();
+
     Vector3 ResetVelocity(Vector3 vel, Vector3 acc)
     {
+        Vector3 sum = Vector3.zero;
+        for (int i = time.Count - 1; i >= 0; i--)
+        {
+            if (calculationFarm.time - zeroDelta > time[i])
+            {
+                window.RemoveAt(i);
+                time.RemoveAt(i);
+            }
+            else
+            {
+                sum += window[i];
+            }
+        }
         Vector3 computeVec = Vector3.zero;
-        //if (acc.x != 0)
-        //    computeVec.x = vel.x;
-        //if (acc.y != 0)
-        //    computeVec.y = vel.y;
-        //if (acc.z != 0)
-        //    computeVec.z = vel.z;
-        if (acc != Vector3.zero)
-            computeVec = vel;
+        if (sum.x != 0)
+            computeVec.x = vel.x;
+        if (sum.y != 0)
+            computeVec.y = vel.y;
+        if (sum.z != 0)
+            computeVec.z = vel.z;
 
+        //if (acc != Vector3.zero)
+        //    computeVec = vel;
+
+        window.Add(acc);
+        time.Add(calculationFarm.time);
         return computeVec;
     }
 
