@@ -10,6 +10,7 @@ public class OtherAlgo : CalculationAlgo
 
     public override void UpdateData(float deltaTime)
     {
+        if (!calculationFarm) return;
         //accs.Add(calculationFarm.usedAcceleration *deltaTime);
         //Vector3 avg = Vector3.zero;
         //foreach (Vector3 acc in accs)

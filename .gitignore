@@ -7,6 +7,8 @@
 Assets/AssetStoreTools*
 UIElementsSchema/
 
+*.mp4
+
 # Visual Studio cache directory
 .vs/
 .vsconfig

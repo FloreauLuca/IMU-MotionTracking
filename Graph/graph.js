@@ -173,10 +173,11 @@ function writeToDataPoint(json) {
 	var keyIndex = 0;
     graphNames.forEach(key => {
         console.log(key);
-		keyIndex++;
         var dataPoints;
+		keyIndex++;
         if (isObject(json.frames[0][key]) && json.frames[0][key].x != undefined) {
-            dataPoints = {};
+            
+			dataPoints = {};
             dataPoints["X"] = [];
             dataPoints["Y"] = [];
             dataPoints["Z"] = [];
@@ -211,13 +212,16 @@ function writeToDataPoint(json) {
                 }
             }
 
-            console.log(data);
-            addAxisData("X", XColor[keyIndex%5]);
-            addAxisData("Y", YColor[keyIndex%5]);
-            addAxisData("Z", ZColor[keyIndex%5]);
+            console.log(key);
+            console.log(keyIndex);
+            console.log(YColor[keyIndex%YColor.length]);
+            addAxisData("X", XColor[keyIndex%XColor.length]);
+            addAxisData("Y", YColor[keyIndex%YColor.length]);
+            addAxisData("Z", ZColor[keyIndex%ZColor.length]);
 
         } else if (typeof json.frames[0][key] === 'number') {
-            dataPoints = [];
+			keyIndex++;
+			dataPoints = [];
             for (var i = 0; i < json.frames.length; i++) {
 				var time = ((json.frames[i].time + timeAdd) * timeMult);
                 dataPoints.push({
@@ -240,6 +244,7 @@ function writeToDataPoint(json) {
         }
     });
     console.log(data);
+    console.log(keyIndex);
     updateVisibility();
     chart.render();
 }
